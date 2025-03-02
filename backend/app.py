@@ -205,10 +205,19 @@ def generate_horoscope(theme="general", sign="", custom_topic="", language="en")
             translated_compatible_signs = [en_to_ru_signs.get(s, s) for s in compatible_signs]
             translated_lucky_color = color_names_ru.get(lucky_colors, lucky_colors)
             
-            # Russian output
+            # Russian output with proper grammatical cases
             if sign:
                 sign_name = en_to_ru_signs.get(sign, sign)
-                full_horoscope = f"Гороскоп для {sign_name} - {current_date}\n\n"
+                # Dictionary for proper genitive case endings in Russian
+                sign_name_genitive = {
+                    "Овен": "Овна", "Телец": "Тельца", "Близнецы": "Близнецов", 
+                    "Рак": "Рака", "Лев": "Льва", "Дева": "Девы",
+                    "Весы": "Весов", "Скорпион": "Скорпиона", "Стрелец": "Стрельца", 
+                    "Козерог": "Козерога", "Водолей": "Водолея", "Рыбы": "Рыб"
+                }
+                # Use genitive case for the title "Гороскоп для Овна"
+                genitive_sign = sign_name_genitive.get(sign_name, sign_name)
+                full_horoscope = f"Гороскоп для {genitive_sign} - {current_date}\n\n"
             else:
                 full_horoscope = f"Гороскоп для вас - {current_date}\n\n"
                 
@@ -359,10 +368,19 @@ def generate_fallback_horoscope(theme="general", sign="", language="en"):
         # Provide basic Russian fallback prediction if not provided by Claude
         ru_prediction = "Звезды сегодня благоприятствуют вашим начинаниям. Внимательно отнеситесь к деталям и доверяйте своей интуиции."
         
-        # Russian horoscope format
+        # Russian horoscope format with genitive case
         if sign:
             sign_name = en_to_ru_signs.get(sign, sign)
-            horoscope = f"Гороскоп для {sign_name} - {current_date}\n\n{ru_prediction}{sign_message}"
+            # Dictionary for proper genitive case endings in Russian
+            sign_name_genitive = {
+                "Овен": "Овна", "Телец": "Тельца", "Близнецы": "Близнецов", 
+                "Рак": "Рака", "Лев": "Льва", "Дева": "Девы",
+                "Весы": "Весов", "Скорпион": "Скорпиона", "Стрелец": "Стрельца", 
+                "Козерог": "Козерога", "Водолей": "Водолея", "Рыбы": "Рыб"
+            }
+            # Use genitive case for the title
+            genitive_sign = sign_name_genitive.get(sign_name, sign_name)
+            horoscope = f"Гороскоп для {genitive_sign} - {current_date}\n\n{ru_prediction}{sign_message}"
         else:
             horoscope = f"Гороскоп для вас - {current_date}\n\n{ru_prediction}{sign_message}"
     else:
