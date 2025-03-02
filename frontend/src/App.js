@@ -139,11 +139,11 @@ const IconButton = styled.button`
   }
 `;
 
-// Copy icon SVG
-const CopyIcon = () => (
+// Copy icon SVG with dynamic color
+const CopyIcon = ({ color = "#FFFFFF" }) => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M20 9H11C9.89543 9 9 9.89543 9 11V20C9 21.1046 9.89543 22 11 22H20C21.1046 22 22 21.1046 22 20V11C22 9.89543 21.1046 9 20 9Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M5 15H4C3.46957 15 2.96086 14.7893 2.58579 14.4142C2.21071 14.0391 2 13.5304 2 13V4C2 3.46957 2.21071 2.96086 2.58579 2.58579C2.96086 2.21071 3.46957 2 4 2H13C13.5304 2 14.0391 2.21071 14.4142 2.58579C14.7893 2.96086 15 3.46957 15 4V5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M20 9H11C9.89543 9 9 9.89543 9 11V20C9 21.1046 9.89543 22 11 22H20C21.1046 22 22 21.1046 22 20V11C22 9.89543 21.1046 9 20 9Z" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M5 15H4C3.46957 15 2.96086 14.7893 2.58579 14.4142C2.21071 14.0391 2 13.5304 2 13V4C2 3.46957 2.21071 2.96086 2.58579 2.58579C2.96086 2.21071 3.46957 2 4 2H13C13.5304 2 14.0391 2.21071 14.4142 2.58579C14.7893 2.96086 15 3.46957 15 4V5" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
   </svg>
 );
 
@@ -201,15 +201,7 @@ const Tooltip = styled.span`
   z-index: 10;
 `;
 
-const CopySuccess = styled.div`
-  text-align: center;
-  margin: 0.5rem auto;
-  color: #66ff99;
-  font-size: 0.75rem;
-  opacity: ${props => props.visible ? 1 : 0};
-  transition: opacity 0.3s;
-  height: ${props => props.visible ? 'auto' : 0};
-`;
+// Удаляем компонент CopySuccess, так как он больше не нужен
 
 const LanguageToggle = styled.div`
   position: absolute;
@@ -323,6 +315,7 @@ function App() {
   const [showCustom, setShowCustom] = useState(theme === 'custom');
   const [language, setLanguage] = useState(getSavedLanguage());
   const [copySuccess, setCopySuccess] = useState(false);
+  const [copyIconColor, setCopyIconColor] = useState('#FFFFFF'); // Default white
 
   const zodiacSignsEn = [
     'Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo',
@@ -639,9 +632,10 @@ ${h.text}
               // Copy to clipboard
               navigator.clipboard.writeText(horoscopesText)
                 .then(() => {
-                  setCopySuccess(true);
-                  // Hide success message after 3 seconds
-                  setTimeout(() => setCopySuccess(false), 3000);
+                  // Change icon color to green to indicate success
+                  setCopyIconColor('#66FF99'); // Bright green
+                  // Reset color after 1.5 seconds
+                  setTimeout(() => setCopyIconColor('#FFFFFF'), 1500);
                 })
                 .catch(err => {
                   console.error('Failed to copy text: ', err);
@@ -652,14 +646,12 @@ ${h.text}
             }}
             title={language === 'ru' ? 'Скопировать все гороскопы' : 'Copy all horoscopes'}
           >
-            <CopyIcon />
+            <CopyIcon color={copyIconColor} />
           </IconButton>
         </ButtonRow>
       </Form>
       
-      <CopySuccess visible={copySuccess}>
-        {language === 'ru' ? '✓ Скопировано в буфер обмена' : '✓ Copied to clipboard'}
-      </CopySuccess>
+      {/* Удаляем элемент CopySuccess */}
       
       {loading ? (
         <Loading>
