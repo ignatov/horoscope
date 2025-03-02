@@ -327,6 +327,22 @@ function App() {
     'Весы', 'Скорпион', 'Стрелец', 'Козерог', 'Водолей', 'Рыбы'
   ];
   
+  // Russian zodiac signs in genitive case (родительный падеж)
+  const zodiacSignsRuGenitive = {
+    'Овен': 'Овна',
+    'Телец': 'Тельца',
+    'Близнецы': 'Близнецов',
+    'Рак': 'Рака',
+    'Лев': 'Льва',
+    'Дева': 'Девы',
+    'Весы': 'Весов',
+    'Скорпион': 'Скорпиона',
+    'Стрелец': 'Стрельца',
+    'Козерог': 'Козерога',
+    'Водолей': 'Водолея',
+    'Рыбы': 'Рыб'
+  };
+  
   // Shorter versions of Russian zodiac names for UI display
   const zodiacSignsRuShort = [
     'Овен', 'Телец', 'Близнецы', 'Рак', 'Лев', 'Дева',
@@ -624,7 +640,9 @@ function App() {
               
               // Format all horoscopes into a single text
               const horoscopesText = horoscopes
-                .map(h => `${h.sign ? (language === 'ru' ? `ПРОГНОЗ ДЛЯ ${h.sign.toUpperCase()}` : `FORECAST FOR ${h.sign.toUpperCase()}`) : ''}
+                .map(h => `${h.sign ? (language === 'ru' 
+                  ? `ПРОГНОЗ ДЛЯ ${(zodiacSignsRuGenitive[h.sign] || h.sign).toUpperCase()}` 
+                  : `FORECAST FOR ${h.sign.toUpperCase()}`) : ''}
 ${h.text}
 `)
                 .join('\n---\n\n');
@@ -666,7 +684,9 @@ ${h.text}
               <HoroscopeCard>
                 <HoroscopeTitle>
                   {horoscope.sign 
-                    ? (language === 'ru' ? `Прогноз для ${horoscope.sign}` : `Forecast for ${horoscope.sign}`) 
+                    ? (language === 'ru' 
+                      ? `Прогноз для ${zodiacSignsRuGenitive[horoscope.sign] || horoscope.sign}` 
+                      : `Forecast for ${horoscope.sign}`) 
                     : (language === 'ru' ? 'Сообщение' : 'Message')}
                 </HoroscopeTitle>
                 <HoroscopeText>{horoscope.text}</HoroscopeText>
