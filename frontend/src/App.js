@@ -5,25 +5,25 @@ import styled from 'styled-components';
 const AppContainer = styled.div`
   max-width: 800px;
   margin: 0 auto;
-  padding: 1rem;
+  padding: 0.8rem;
   position: relative;
 `;
 
 const Header = styled.header`
   text-align: center;
-  margin-bottom: 1rem;
+  margin-bottom: 0.8rem;
   position: relative;
 `;
 
 const Title = styled.h1`
-  font-size: 2.2rem;
+  font-size: 1.8rem;
   margin-bottom: 0.2rem;
   color: #f8f9fa;
   text-shadow: 0 0 10px rgba(255, 215, 0, 0.7);
 `;
 
 const Subtitle = styled.p`
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   color: #ced4da;
   margin-bottom: 0.2rem;
 `;
@@ -32,50 +32,50 @@ const Form = styled.form`
   background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(10px);
   border-radius: 10px;
-  padding: 1rem;
-  margin-bottom: 1rem;
+  padding: 0.8rem;
+  margin-bottom: 0.8rem;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
 `;
 
 const FormRow = styled.div`
-  margin-bottom: 0.7rem;
+  margin-bottom: 0.6rem;
 `;
 
 const Label = styled.label`
   display: block;
-  margin-bottom: 0.3rem;
+  margin-bottom: 0.25rem;
   font-weight: 500;
   color: #e9ecef;
-  font-size: 0.9rem;
+  font-size: 0.8rem;
 `;
 
 const Select = styled.select`
   width: 100%;
-  padding: 0.5rem;
+  padding: 0.4rem;
   border-radius: 6px;
   background-color: rgba(255, 255, 255, 0.9);
   border: none;
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   font-family: 'Poppins', sans-serif;
 `;
 
 const Input = styled.input`
   width: 100%;
-  padding: 0.5rem;
+  padding: 0.4rem;
   border-radius: 6px;
   background-color: rgba(255, 255, 255, 0.9);
   border: none;
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   font-family: 'Poppins', sans-serif;
-  margin-top: 0.3rem;
+  margin-top: 0.25rem;
 `;
 
 const Button = styled.button`
   background: linear-gradient(135deg, #ff9966 0%, #ff5e62 100%);
   color: white;
   border: none;
-  padding: 0.5rem 1rem;
-  font-size: 0.9rem;
+  padding: 0.4rem 0.8rem;
+  font-size: 0.8rem;
   font-weight: 500;
   border-radius: 6px;
   cursor: pointer;
@@ -154,40 +154,23 @@ const LanguageButton = styled.button`
 
 const CheckboxContainer = styled.div`
   display: flex;
-  flex-wrap: nowrap;
-  gap: 0.4rem;
-  margin-top: 0.5rem;
-  overflow-x: auto;
-  padding-bottom: 0.5rem;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(255, 94, 98, 0.4) rgba(255, 255, 255, 0.1);
-  
-  &::-webkit-scrollbar {
-    height: 6px;
-  }
-  
-  &::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 3px;
-  }
-  
-  &::-webkit-scrollbar-thumb {
-    background-color: rgba(255, 94, 98, 0.4);
-    border-radius: 3px;
-  }
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  margin-top: 0.4rem;
+  justify-content: center;
 `;
 
 const CheckboxLabel = styled.label`
   display: flex;
   align-items: center;
   background: rgba(255, 255, 255, 0.1);
-  padding: 0.4rem 0.6rem;
-  border-radius: 20px;
+  padding: 0.3rem 0.5rem;
+  border-radius: 15px;
   cursor: pointer;
   transition: background 0.2s, transform 0.1s;
   user-select: none;
   white-space: nowrap;
-  font-size: 0.85rem;
+  font-size: 0.75rem;
   
   &:hover {
     background: rgba(255, 255, 255, 0.2);
@@ -223,6 +206,12 @@ function App() {
   ];
   
   const zodiacSignsRu = [
+    'Овен', 'Телец', 'Близнецы', 'Рак', 'Лев', 'Дева',
+    'Весы', 'Скорпион', 'Стрелец', 'Козерог', 'Водолей', 'Рыбы'
+  ];
+  
+  // Shorter versions of Russian zodiac names for UI display
+  const zodiacSignsRuShort = [
     'Овен', 'Телец', 'Близнецы', 'Рак', 'Лев', 'Дева',
     'Весы', 'Скорпион', 'Стрелец', 'Козерог', 'Водолей', 'Рыбы'
   ];
@@ -399,8 +388,8 @@ function App() {
         <Title>✨ {language === 'ru' ? 'Космические Прозрения' : 'Cosmic Insights'} ✨</Title>
         <Subtitle>
           {language === 'ru' 
-            ? 'Персонализированный гороскоп к мудрости вселенной' 
-            : 'Personalized horoscope guide to the universe\'s wisdom'}
+            ? 'Гороскоп на сегодня' 
+            : 'Today\'s horoscope'}
         </Subtitle>
       </Header>
       
@@ -448,7 +437,7 @@ function App() {
             {language === 'ru' ? 'Выберите знаки зодиака:' : 'Select Zodiac Signs:'}
           </Label>
           <CheckboxContainer>
-            {(language === 'ru' ? zodiacSignsRu : zodiacSignsEn).map(zodiacSign => (
+            {(language === 'ru' ? zodiacSignsRu : zodiacSignsEn).map((zodiacSign, index) => (
               <CheckboxLabel 
                 key={zodiacSign}
                 className={selectedSigns.includes(zodiacSign) ? 'selected' : ''}
