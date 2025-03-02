@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify, make_response, send_from_directory
 import random
-from datetime import datetime
+import datetime  # Импортируем весь модуль datetime
 import anthropic
 from decouple import config
 import os
@@ -142,13 +142,13 @@ def generate_horoscope(theme="general", sign="", custom_topic="", language="en")
             "July": "июля", "August": "августа", "September": "сентября", 
             "October": "октября", "November": "ноября", "December": "декабря"
         }
-        eng_date = datetime.now().strftime("%B %d, %Y")
+        eng_date = datetime.datetime.now().strftime("%B %d, %Y")
         month = eng_date.split()[0]
         day = eng_date.split()[1].replace(",", "")
         year = eng_date.split()[2]
         current_date = f"{day} {month_names_ru[month]} {year}"
     else:
-        current_date = datetime.now().strftime("%B %d, %Y")
+        current_date = datetime.datetime.now().strftime("%B %d, %Y")
     
     # Theme descriptions in English
     theme_descriptions_en = {
@@ -479,13 +479,13 @@ def generate_fallback_horoscope(theme="general", sign="", language="en"):
             "July": "июля", "August": "августа", "September": "сентября", 
             "October": "октября", "November": "ноября", "December": "декабря"
         }
-        eng_date = datetime.now().strftime("%B %d, %Y")
+        eng_date = datetime.datetime.now().strftime("%B %d, %Y")
         month = eng_date.split()[0]
         day = eng_date.split()[1].replace(",", "")
         year = eng_date.split()[2]
         current_date = f"{day} {month_names_ru[month]} {year}"
     else:
-        current_date = datetime.now().strftime("%B %d, %Y")
+        current_date = datetime.datetime.now().strftime("%B %d, %Y")
     
     # Select theme content (default to general if theme not found)
     theme_content = horoscope_themes.get(theme.lower(), horoscope_themes["general"])
