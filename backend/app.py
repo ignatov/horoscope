@@ -108,12 +108,13 @@ def generate_horoscope(theme="general", sign="", custom_topic="", language="en")
             {"Знак зодиака: " + sign if sign else "Это общий гороскоп."}
             {sign_traits}
             
-            Напишите ОЧЕНЬ КОРОТКИЙ гороскоп, содержащий ТОЛЬКО 2-3 КРАТКИХ утверждения, включая:
-            1. Краткое предсказание о {theme} человека в ближайшие дни
-            2. Короткий совет или наставление
+            Напишите мистический гороскоп из РОВНО 4 ПРЕДЛОЖЕНИЙ, включая:
+            1. Предсказание о {theme} человека в ближайшие дни
+            2. Мистическое наблюдение о влиянии звезд или планет
+            3. Совет или наставление 
+            4. Предсказание удачи или предостережение
             
-            Избегайте сложных метафор и длинных предложений. Пишите просто и понятно.
-            Весь гороскоп должен состоять не более чем из 2-3 КОРОТКИХ предложений.
+            Пишите по одному предложению для каждого пункта, всего РОВНО 4 ПРЕДЛОЖЕНИЯ.
             
             ОЧЕНЬ ВАЖНО! Пишите ТОЛЬКО на русском языке.
             """
@@ -125,27 +126,28 @@ def generate_horoscope(theme="general", sign="", custom_topic="", language="en")
             {"Zodiac sign: " + sign if sign else "This is a general horoscope."}
             {sign_traits}
             
-            Write a VERY SHORT horoscope with ONLY 2-3 BRIEF statements that includes:
-            1. A brief prediction about the person's {theme} in the coming days
-            2. A short piece of advice or guidance
+            Write a mystical horoscope with EXACTLY 4 SENTENCES that includes:
+            1. A prediction about the person's {theme} in the coming days
+            2. A mystical observation about the influence of stars or planets
+            3. A piece of advice or guidance
+            4. A prediction of luck or a warning
             
-            Avoid complex metaphors and long sentences. Write simply and clearly.
-            The entire horoscope should be no more than 2-3 SHORT sentences total.
+            Write one sentence for each point, creating EXACTLY 4 SENTENCES total.
             """
         
         # Call Claude API with Anthropic client
         try:
             # Set up the system prompt for the astrologer based on language
             if language == "ru":
-                system_prompt = "Вы мистический астролог, который пишет очень краткие, глубокие гороскопы. Ваш тон мудрый, мистический и позитивный - но вы ОЧЕНЬ кратки, используя не более 2-3 коротких предложений всего. Пишете ТОЛЬКО на русском языке. Не подписывайте свои предсказания. Избегайте сложных метафор и очень длинных предложений."
+                system_prompt = "Вы мистический астролог, который пишет краткие, глубокие гороскопы. Ваш тон мудрый, мистический и позитивный. Пишете ВСЕГДА ровно 4 коротких предложения, НИ БОЛЬШЕ И НИ МЕНЬШЕ. Пишете ТОЛЬКО на русском языке. Не подписывайте свои предсказания. Избегайте очень длинных и сложных предложений."
             else:
-                system_prompt = "You are a mystical astrologer who writes very concise, insightful horoscopes. Your tone is wise, mystical, and positive - but you are EXTREMELY brief, using only 2-3 short sentences total. Keep predictions simple and easy to understand. Avoid complex metaphors and very long sentences. Do not sign your predictions."
+                system_prompt = "You are a mystical astrologer who writes concise, insightful horoscopes. Your tone is wise, mystical, and positive. You ALWAYS write EXACTLY 4 short sentences, NO MORE AND NO FEWER. Keep predictions simple and easy to understand. Avoid overly complex metaphors and very long sentences. Do not sign your predictions."
             
             # Try with Claude 3.5 Sonnet
             try:
                 message = client.messages.create(
                     model="claude-3-5-sonnet-latest",
-                    max_tokens=120,  # Reduce token limit to ensure we don't get cutoff
+                    max_tokens=150,  # Allow for 4 sentences
                     temperature=0.7,
                     system=system_prompt,
                     messages=[
@@ -159,7 +161,7 @@ def generate_horoscope(theme="general", sign="", custom_topic="", language="en")
                 try:
                     message = client.messages.create(
                         model="claude-3-opus-20240229",
-                        max_tokens=120,  # Reduce token limit for consistent length
+                        max_tokens=150,  # Allow for 4 sentences
                         temperature=0.7,
                         system=system_prompt,
                         messages=[
