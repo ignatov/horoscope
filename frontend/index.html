@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Космические Прозрения</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Poppins:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Фон со звёздами -->
+    <div class="stars stars-1"></div>
+    <div class="stars stars-2"></div>
+    <div class="shooting-star shooting-star-1"></div>
+    <div class="shooting-star shooting-star-2"></div>
+    <div class="shooting-star shooting-star-3"></div>
+
+    <div class="app-container">
+        <!-- Переключатель языка -->
+        <div class="language-toggle">
+            <button class="language-button active" data-lang="ru">Рус</button>
+            <button class="language-button" data-lang="en">Eng</button>
+        </div>
+
+        <!-- Заголовок -->
+        <header>
+            <h1 class="title">✨ <span class="title-text">Космические Прозрения</span> ✨</h1>
+            <p class="subtitle"><span class="subtitle-text">Гороскоп на сегодня</span></p>
+        </header>
+
+        <!-- Форма -->
+        <form class="horoscope-form">
+            <div class="form-row">
+                <label for="theme" class="label theme-label">Выберите тему:</label>
+                <select id="theme" class="select">
+                    <option value="general">Общий</option>
+                    <option value="career">Карьера и финансы</option>
+                    <option value="love">Любовь и отношения</option>
+                    <option value="health">Здоровье и самочувствие</option>
+                    <option value="custom">Своя тема...</option>
+                </select>
+                <input type="text" id="customTopic" class="input custom-topic" placeholder="Введите свою тему (например, Путешествия, Образование, Творчество)" style="display:none;">
+            </div>
+
+            <div class="form-row">
+                <label class="label signs-label">Выберите знаки зодиака:</label>
+                <div class="zodiac-container">
+                    <!-- Здесь будут динамически добавлены знаки зодиака через JavaScript -->
+                </div>
+            </div>
+
+            <div class="button-row">
+                <button type="submit" class="button generate-button">Создать Гороскопы</button>
+                <button type="button" class="icon-button copy-button" disabled title="Скопировать все гороскопы">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M20 9H11C9.89543 9 9 9.89543 9 11V20C9 21.1046 9.89543 22 11 22H20C21.1046 22 22 21.1046 22 20V11C22 9.89543 21.1046 9 20 9Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M5 15H4C3.46957 15 2.96086 14.7893 2.58579 14.4142C2.21071 14.0391 2 13.5304 2 13V4C2 3.46957 2.21071 2.96086 2.58579 2.58579C2.96086 2.21071 3.46957 2 4 2H13C13.5304 2 14.0391 2.21071 14.4142 2.58579C14.7893 2.96086 15 3.46957 15 4V5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+            </div>
+        </form>
+
+        <!-- Спиннер загрузки -->
+        <div class="loading" style="display: none;">
+            <span class="loading-text">✨ Консультируемся со звездами... ✨</span>
+        </div>
+
+        <!-- Результаты -->
+        <div class="horoscope-results"></div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
