@@ -84,13 +84,12 @@ const Button = styled.button`
   min-width: 180px;
   height: ${buttonHeight};
   line-height: ${buttonHeight};
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: box-shadow 0.2s;
   display: flex;
   align-items: center;
   justify-content: center;
   
   &:hover {
-    transform: translateY(-1px);
     box-shadow: 0 3px 10px rgba(255, 94, 98, 0.4);
   }
 `;
@@ -115,11 +114,10 @@ const IconButton = styled.button`
   align-items: center;
   justify-content: center;
   cursor: ${props => props.disabled ? 'not-allowed' : 'pointer'};
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: box-shadow 0.2s;
   opacity: ${props => props.disabled ? 0.5 : 1};
   
   &:hover {
-    transform: ${props => props.disabled ? 'none' : 'translateY(-1px)'};
     box-shadow: ${props => props.disabled ? 'none' : '0 3px 10px rgba(94, 98, 255, 0.4)'};
   }
   
