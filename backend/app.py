@@ -1,11 +1,16 @@
-from flask import Flask, request, jsonify, make_response
+from flask import Flask, request, jsonify, make_response, send_from_directory
 import random
 from datetime import datetime
 import anthropic
 from decouple import config
 import os
+import pathlib
 
-app = Flask(__name__)
+# Получаем абсолютный путь к корневой директории проекта
+ROOT_DIR = pathlib.Path(__file__).parent.parent.absolute()
+FRONTEND_DIR = os.path.join(ROOT_DIR, 'frontend')
+
+app = Flask(__name__, static_folder=os.path.join(FRONTEND_DIR))
 
 # Initialize Anthropic client
 ANTHROPIC_API_KEY = config('ANTHROPIC_API_KEY', default='')
@@ -390,6 +395,17 @@ def generate_fallback_horoscope(theme="general", sign="", language="en"):
 
 @app.route('/')
 def home():
+    """Serve the frontend index.html file"""
+    return send_from_directory(FRONTEND_DIR, 'index.html')
+
+@app.route('/<path:path>')
+def serve_static(path):
+    """Serve static files from the frontend directory"""
+    return send_from_directory(FRONTEND_DIR, path)
+
+@app.route('/api')
+def api_info():
+    """Return API information"""
     resp = jsonify({
         'message': 'Welcome to the Horoscope API',
         'endpoints': ['/api/horoscope']

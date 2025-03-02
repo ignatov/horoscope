@@ -357,8 +357,8 @@ async function fetchHoroscopes() {
             // Конвертация русского знака зодиака в английский для API
             const apiSign = isGeneralHoroscope ? "" : (language === 'ru' ? zodiacSignMapRuToEn[sign] : sign);
             
-            // Формирование URL с параметрами
-            let url = `http://localhost:5001/api/horoscope?theme=${theme}&sign=${apiSign}&language=${language}`;
+            // Формирование URL с параметрами (относительный путь для работы с WSGI)
+            let url = `/api/horoscope?theme=${theme}&sign=${apiSign}&language=${language}`;
             
             // Добавление пользовательской темы, если выбрана
             if (theme === 'custom') {
