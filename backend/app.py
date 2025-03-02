@@ -28,41 +28,12 @@ app = Flask(__name__,
             static_folder=FRONTEND_DIR,
             static_url_path='')
 
-# Настройка логирования
-import logging
-from logging.handlers import RotatingFileHandler
+# Удаляем сложное логирование и заменяем на простые print-сообщения
+import datetime
 
-# Создаем директорию для логов, если она не существует
-LOG_DIR = os.path.join(ROOT_DIR, 'logs')
-os.makedirs(LOG_DIR, exist_ok=True)
-
-# Настраиваем логгер для API запросов
-api_logger = logging.getLogger('anthropic_api')
-api_logger.setLevel(logging.INFO)
-
-# Создаем ротирующий обработчик файлов (максимум 5 файлов по 5 МБ)
-api_handler = RotatingFileHandler(
-    os.path.join(LOG_DIR, 'anthropic_api.log'),
-    maxBytes=5*1024*1024,  # 5 МБ
-    backupCount=5
-)
-
-# Форматирование логов
-log_formatter = logging.Formatter(
-    '%(asctime)s [%(levelname)s] - %(message)s'
-)
-api_handler.setFormatter(log_formatter)
-api_logger.addHandler(api_handler)
-
-# Настраиваем основной логгер Flask
-handler = RotatingFileHandler(
-    os.path.join(LOG_DIR, 'flask_app.log'),
-    maxBytes=5*1024*1024,
-    backupCount=5
-)
-handler.setFormatter(log_formatter)
-app.logger.addHandler(handler)
-app.logger.setLevel(logging.INFO)
+# Функция для получения текущего времени в формате для логов
+def get_log_time():
+    return datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
 # Загрузка API ключа: сначала пробуем из .env файла, затем из переменных окружения
 def load_api_key():
@@ -78,20 +49,20 @@ def load_api_key():
             load_dotenv(env_path)
             api_key = os.environ.get('ANTHROPIC_API_KEY')
             if api_key:
-                app.logger.info("API key loaded from .env file")
+                print(f"[{get_log_time()}] INFO - API key loaded from .env file")
         except Exception as e:
-            app.logger.error(f"Error loading .env file: {str(e)}")
+            print(f"[{get_log_time()}] ERROR - Error loading .env file: {str(e)}")
     
     # Если ключ не был найден в .env, используем python-decouple для получения
     # ключа из переменных окружения или .env в корне проекта
     if not api_key:
         api_key = config('ANTHROPIC_API_KEY', default='')
         if api_key:
-            app.logger.info("API key loaded from environment variables")
+            print(f"[{get_log_time()}] INFO - API key loaded from environment variables")
     
     # Проверяем валидность ключа (базовая проверка)
     if api_key and (len(api_key) < 10 or api_key == 'your_api_key_here'):
-        app.logger.warning("API key seems invalid, consider checking it")
+        print(f"[{get_log_time()}] WARNING - API key seems invalid, consider checking it")
         
     return api_key
 
@@ -100,7 +71,7 @@ ANTHROPIC_API_KEY = load_api_key()
 client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
 
 # Логируем запуск приложения
-app.logger.info('Flask application started')
+print(f"[{get_log_time()}] INFO - Flask application started")
 
 # Sample horoscope content
 horoscope_themes = {
@@ -234,8 +205,15 @@ def generate_horoscope(theme="general", sign="", custom_topic="", language="en")
             else:
                 system_prompt = "You are a mystical astrologer who writes concise, insightful horoscopes. Your tone is wise, mystical, and positive. You ALWAYS write EXACTLY 4 short sentences, NO MORE AND NO FEWER. Keep predictions simple and easy to understand. Avoid overly complex metaphors and very long sentences. Do not sign your predictions."
             
+            # Логируем запрос к API с информацией
+            print(f"[{get_log_time()}] INFO - Запрос гороскопа: тема={theme}, знак={sign if sign else 'Общий'}, язык={language}")
+            
             # Try with Claude 3.5 Sonnet
             try:
+                # Засекаем время запроса
+                import time
+                start_time = time.time()
+                
                 message = client.messages.create(
                     model="claude-3-5-sonnet-latest",
                     max_tokens=150,  # Allow for 4 sentences
@@ -245,11 +223,23 @@ def generate_horoscope(theme="general", sign="", custom_topic="", language="en")
                         {"role": "user", "content": prompt}
                     ]
                 )
+                
+                # Вычисляем время запроса
+                request_time = time.time() - start_time
+                
                 horoscope_text = message.content[0].text.strip()
+                
+                # Логируем успешный ответ
+                print(f"[{get_log_time()}] INFO - Получен ответ от Claude 3.5 Sonnet за {request_time:.2f}s")
             except Exception as e1:
+                print(f"[{get_log_time()}] ERROR - Ошибка Claude 3.5 Sonnet: {str(e1)}")
                 print(f"Error with Claude 3.5 Sonnet: {e1}")
+                
                 # If that fails, try Claude 3 Opus
                 try:
+                    # Засекаем время запроса для резервной модели
+                    start_time = time.time()
+                    
                     message = client.messages.create(
                         model="claude-3-opus-20240229",
                         max_tokens=150,  # Allow for 4 sentences
@@ -259,15 +249,26 @@ def generate_horoscope(theme="general", sign="", custom_topic="", language="en")
                             {"role": "user", "content": prompt}
                         ]
                     )
+                    
+                    # Вычисляем время запроса
+                    request_time = time.time() - start_time
+                    
                     horoscope_text = message.content[0].text.strip()
+                    
+                    # Логируем успешный ответ от резервной модели
+                    print(f"[{get_log_time()}] INFO - Получен ответ от резервной модели Claude 3 Opus за {request_time:.2f}s")
                 except Exception as e2:
+                    print(f"[{get_log_time()}] ERROR - Ошибка резервной модели Claude 3 Opus: {str(e2)}")
                     print(f"Error with Claude 3 Opus: {e2}")
                     # Final fallback - use the pre-written content
+                    print(f"[{get_log_time()}] WARNING - Все модели Claude не сработали, используем запасной контент")
                     raise Exception("All Claude models failed")
         
         except Exception as e:
+            print(f"[{get_log_time()}] ERROR - Ошибка вызова Anthropic API: {str(e)}")
             print(f"Error calling Anthropic API: {e}")
-            return generate_fallback_horoscope(theme, sign)
+            print(f"[{get_log_time()}] WARNING - Используем запасной гороскоп для {theme}/{sign} из-за ошибки API")
+            return generate_fallback_horoscope(theme, sign, language)
         
         # Generate additional personalized elements
         lucky_number = random.randint(1, 100)
@@ -501,18 +502,38 @@ def api_info():
 
 @app.route('/api/horoscope')
 def get_horoscope():
+    # Получаем IP-адрес запроса и информацию о клиенте
+    client_ip = request.remote_addr
+    user_agent = request.headers.get('User-Agent', 'Unknown')
+    
+    # Логируем запрос к API
+    print(f"[{get_log_time()}] INFO - Запрос гороскопа с IP: {client_ip}")
+    print(f"[{get_log_time()}] INFO - User-Agent: {user_agent[:100]}...")
+    
     # Get parameters
     theme = request.args.get('theme', 'general')
     sign = request.args.get('sign', '')
     custom_topic = request.args.get('customTopic', '')
     language = request.args.get('language', 'en')  # Default to English if not specified
     
+    # Логируем параметры запроса
+    print(f"[{get_log_time()}] INFO - Параметры запроса: тема={theme}, знак={sign}, язык={language}, своя тема={custom_topic if custom_topic else 'Нет'}")
+    
     # Handle case when no sign is selected - explicitly set to empty string
     if not sign or sign.strip() == '':
         sign = ''
+        print(f"[{get_log_time()}] INFO - Знак не выбран, используется общий гороскоп")
+    
+    # Измеряем время выполнения запроса
+    import time
+    start_time = time.time()
     
     # Generate horoscope with custom topic and language
     horoscope_text = generate_horoscope(theme, sign, custom_topic, language)
+    
+    # Вычисляем общее время выполнения
+    request_time = time.time() - start_time
+    print(f"[{get_log_time()}] INFO - Гороскоп сгенерирован за {request_time:.2f}s")
     
     # Set CORS headers manually
     resp = jsonify({
@@ -525,6 +546,7 @@ def get_horoscope():
     resp.headers['Access-Control-Allow-Origin'] = '*'
     resp.headers['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS'
     resp.headers['Access-Control-Allow-Headers'] = 'Content-Type'
+    
     return resp
 
 if __name__ == '__main__':
