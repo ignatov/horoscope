@@ -275,9 +275,9 @@ def generate_horoscope(theme="general", sign="", custom_topic="", language="en")
         try:
             # Set up the system prompt for the astrologer based on language
             if language == "ru":
-                system_prompt = "Вы мистический астролог, который пишет краткие, глубокие гороскопы. Ваш тон мудрый, мистический и позитивный. Пишете ВСЕГДА ровно 4 коротких предложения, НИ БОЛЬШЕ И НИ МЕНЬШЕ. Пишете ТОЛЬКО на русском языке. Не подписывайте свои предсказания. Избегайте очень длинных и сложных предложений."
+                system_prompt = "Вы мистический астролог, который пишет краткие, глубокие гороскопы. Ваш тон мудрый, мистический и позитивный. Пишете ВСЕГДА ровно 4 предложения, НИ БОЛЬШЕ И НИ МЕНЬШЕ. Предложения могут быть средней длины, не обязательно короткие. Пишете ТОЛЬКО на русском языке. Не подписывайте свои предсказания. ВАЖНО: предложения должны быть ПОЛНЫМИ, не обрезанными."
             else:
-                system_prompt = "You are a mystical astrologer who writes concise, insightful horoscopes. Your tone is wise, mystical, and positive. You ALWAYS write EXACTLY 4 short sentences, NO MORE AND NO FEWER. Keep predictions simple and easy to understand. Avoid overly complex metaphors and very long sentences. Do not sign your predictions."
+                system_prompt = "You are a mystical astrologer who writes concise, insightful horoscopes. Your tone is wise, mystical, and positive. You ALWAYS write EXACTLY 4 sentences, NO MORE AND NO FEWER. Sentences can be of medium length, they don't have to be short. Keep your language engaging and poetic. IMPORTANT: All sentences must be COMPLETE, not truncated. Do not sign your predictions."
             
             # Логируем запрос к API с информацией
             print(f"[{get_log_time()}] INFO - Запрос гороскопа: тема={theme}, знак={sign if sign else 'Общий'}, язык={language}")
@@ -306,7 +306,7 @@ def generate_horoscope(theme="general", sign="", custom_topic="", language="en")
                     # Данные для запроса к API
                     data = {
                         "model": CLAUDE_3_5_MODEL,
-                        "max_tokens": 150,
+                        "max_tokens": 300,  # Увеличено с 150 до 300, чтобы не обрезались предложения
                         "temperature": 0.7,
                         "system": system_prompt,
                         "messages": [
@@ -376,7 +376,7 @@ def generate_horoscope(theme="general", sign="", custom_topic="", language="en")
                         # Данные для запроса к API с запасной моделью
                         data = {
                             "model": CLAUDE_3_MODEL,
-                            "max_tokens": 150,
+                            "max_tokens": 300,  # Увеличено с 150 до 300, чтобы не обрезались предложения
                             "temperature": 0.7,
                             "system": system_prompt,
                             "messages": [
