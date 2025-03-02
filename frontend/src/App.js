@@ -74,12 +74,12 @@ const Button = styled.button`
   background: linear-gradient(135deg, #ff9966 0%, #ff5e62 100%);
   color: white;
   border: none;
-  padding: 0.4rem 0.8rem;
+  padding: 0.4rem 1.2rem;
   font-size: 0.8rem;
   font-weight: 500;
   border-radius: 6px;
   cursor: pointer;
-  width: ${props => props.withIcon ? 'calc(100% - 40px)' : '100%'};
+  min-width: 180px;
   transition: transform 0.2s, box-shadow 0.2s;
   
   &:hover {
@@ -92,6 +92,8 @@ const ButtonRow = styled.div`
   display: flex;
   gap: 0.5rem;
   width: 100%;
+  justify-content: center;
+  align-items: center;
 `;
 
 const IconButton = styled.button`
@@ -612,7 +614,7 @@ function App() {
         </FormRow>
         
         <ButtonRow>
-          <Button type="submit" withIcon>
+          <Button type="submit">
             {language === 'ru' ? 'Создать Гороскопы' : 'Generate Horoscopes'}
           </Button>
           <IconButton 
