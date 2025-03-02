@@ -132,47 +132,69 @@ function populateZodiacSigns() {
     const signs = language === 'ru' ? zodiacSignsRu : zodiacSignsEn;
     
     signs.forEach(sign => {
-        const label = document.createElement('label');
-        label.className = 'zodiac-label';
+        // Создаем простую кнопку вместо label+checkbox
+        const button = document.createElement('button');
+        button.type = 'button'; // Чтобы не отправлял форму
+        button.className = 'zodiac-button';
+        button.textContent = sign;
+        
+        // Если знак уже выбран, добавляем класс selected
         if (selectedSigns.includes(sign)) {
-            label.classList.add('selected');
+            button.classList.add('selected');
         }
         
-        const checkbox = document.createElement('input');
-        checkbox.type = 'checkbox';
-        checkbox.className = 'zodiac-checkbox';
-        checkbox.checked = selectedSigns.includes(sign);
-        checkbox.value = sign;
-        
-        label.appendChild(checkbox);
-        label.appendChild(document.createTextNode(sign));
-        
-        label.addEventListener('click', () => {
-            toggleZodiacSign(sign, label);
+        // Добавляем простой обработчик нажатия
+        button.addEventListener('click', () => {
+            // Переключаем состояние выбора
+            if (selectedSigns.includes(sign)) {
+                // Удаляем из выбранных
+                selectedSigns = selectedSigns.filter(s => s !== sign);
+                button.classList.remove('selected');
+            } else {
+                // Добавляем в выбранные
+                selectedSigns.push(sign);
+                button.classList.add('selected');
+            }
+            
+            // Синхронизация выбора между языками
+            syncSelectedSigns();
+            // Сохранение выбранных знаков
+            saveSelectedSigns();
+            // Обновление кнопки копирования
+            updateCopyButton();
         });
         
-        container.appendChild(label);
+        container.appendChild(button);
     });
 }
 
-// Функция для переключения выбора знака зодиака
+// Функция для переключения выбора знака зодиака (оставлена для обратной совместимости)
 function toggleZodiacSign(sign, label) {
-    if (selectedSigns.includes(sign)) {
-        selectedSigns = selectedSigns.filter(s => s !== sign);
-        label.classList.remove('selected');
+    const checkbox = label.querySelector('.zodiac-checkbox');
+    if (checkbox) {
+        // Инвертируем состояние чекбокса программно
+        checkbox.checked = !checkbox.checked;
+        // Вызываем событие change, чтобы использовать новую логику
+        checkbox.dispatchEvent(new Event('change'));
     } else {
-        selectedSigns.push(sign);
-        label.classList.add('selected');
+        // Старая реализация как запасной вариант
+        if (selectedSigns.includes(sign)) {
+            selectedSigns = selectedSigns.filter(s => s !== sign);
+            label.classList.remove('selected');
+        } else {
+            selectedSigns.push(sign);
+            label.classList.add('selected');
+        }
+        
+        // Синхронизация выбора между языками
+        syncSelectedSigns();
+        
+        // Сохранение выбранных знаков
+        saveSelectedSigns();
+        
+        // Обновление кнопки копирования
+        updateCopyButton();
     }
-    
-    // Синхронизация выбора между языками
-    syncSelectedSigns();
-    
-    // Сохранение выбранных знаков
-    saveSelectedSigns();
-    
-    // Обновление кнопки копирования
-    updateCopyButton();
 }
 
 // Функция для синхронизации выбора между языками
@@ -312,12 +334,11 @@ async function fetchHoroscopes() {
         return;
     }
     
-    // Проверка на выбранные знаки
+    // Если знаки не выбраны, запросим общий гороскоп
+    const originalSigns = [...selectedSigns];
     if (selectedSigns.length === 0) {
-        results.innerHTML = `<div class="horoscope-card">
-            <p class="horoscope-text">${language === 'ru' ? 'Пожалуйста, выберите хотя бы один знак зодиака.' : 'Please select at least one zodiac sign.'}</p>
-        </div>`;
-        return;
+        // Создаем временный "Общий" для запроса
+        selectedSigns = [""];
     }
     
     // Показать индикатор загрузки
@@ -330,8 +351,11 @@ async function fetchHoroscopes() {
         
         // Получение гороскопа для каждого выбранного знака
         for (const sign of selectedSigns) {
+            // Если знак пустой - это общий гороскоп
+            const isGeneralHoroscope = sign === "";
+            
             // Конвертация русского знака зодиака в английский для API
-            const apiSign = language === 'ru' ? zodiacSignMapRuToEn[sign] : sign;
+            const apiSign = isGeneralHoroscope ? "" : (language === 'ru' ? zodiacSignMapRuToEn[sign] : sign);
             
             // Формирование URL с параметрами
             let url = `http://localhost:5001/api/horoscope?theme=${theme}&sign=${apiSign}&language=${language}`;
@@ -355,14 +379,18 @@ async function fetchHoroscopes() {
             }
             
             const data = await response.json();
+            // Если это общий гороскоп, используем "Общий" как заголовок
             horoscopes.push({
-                sign: sign,
+                sign: isGeneralHoroscope ? (language === 'ru' ? 'Общий' : 'General') : sign,
                 text: data.horoscope
             });
         }
         
         // Отображение результатов
         displayHoroscopes();
+        
+        // Восстанавливаем исходный список знаков после запроса
+        selectedSigns = originalSigns;
     } catch (error) {
         console.error('Error fetching horoscopes:', error);
         results.innerHTML = `<div class="horoscope-card">
@@ -406,8 +434,10 @@ function copyHoroscopes() {
     if (horoscopes.length === 0) return;
     
     const copyText = horoscopes.map(h => h.text).join('\n\n---\n\n');
+    // Удаляем возможные дополнительные пустые строки
+    const cleanText = copyText.replace(/\n{3,}/g, '\n\n');
     
-    navigator.clipboard.writeText(copyText)
+    navigator.clipboard.writeText(cleanText)
         .then(() => {
             // Визуальная обратная связь - изменение цвета иконки
             const paths = document.querySelectorAll('.copy-button path');

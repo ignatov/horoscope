@@ -356,9 +356,8 @@ header {
   justify-content: center;
 }
 
-.zodiac-label {
-  display: flex;
-  align-items: center;
+.zodiac-button {
+  display: inline-block;
   background: rgba(255, 255, 255, 0.1);
   padding: 0.3rem 0.5rem;
   border-radius: 15px;
@@ -367,20 +366,43 @@ header {
   user-select: none;
   white-space: nowrap;
   font-size: 0.75rem;
+  position: relative;
+  border: none;
+  color: #ffffff;
+  font-family: 'Poppins', sans-serif;
+  margin: 0.15rem;
 }
 
-.zodiac-label:hover {
+.zodiac-button:hover {
   background: rgba(255, 255, 255, 0.2);
+  outline: none;
 }
 
-.zodiac-label.selected {
-  background: rgba(255, 94, 98, 0.4);
+.zodiac-button:active {
+  transform: scale(0.98);
+}
+
+.zodiac-button:focus {
+  outline: 2px solid rgba(255, 255, 255, 0.4);
+  outline-offset: 2px;
+}
+
+.zodiac-button.selected {
+  background: rgba(255, 94, 98, 0.7);
   transform: scale(1.05);
+  box-shadow: 0 0 5px rgba(255, 94, 98, 0.4);
 }
 
+/* Сохраняем для обратной совместимости, но скрываем */
 .zodiac-checkbox {
   position: absolute;
   opacity: 0;
   height: 0;
   width: 0;
+  z-index: -1;
+}
+
+/* Сохраняем для обратной совместимости */
+.zodiac-label {
+  display: none;
 }

@@ -405,6 +405,10 @@ def get_horoscope():
     custom_topic = request.args.get('customTopic', '')
     language = request.args.get('language', 'en')  # Default to English if not specified
     
+    # Handle case when no sign is selected - explicitly set to empty string
+    if not sign or sign.strip() == '':
+        sign = ''
+    
     # Generate horoscope with custom topic and language
     horoscope_text = generate_horoscope(theme, sign, custom_topic, language)
     
