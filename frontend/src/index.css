@@ -1,0 +1,157 @@
+@keyframes twinkle {
+  0% { opacity: 0.3; }
+  50% { opacity: 1; }
+  100% { opacity: 0.3; }
+}
+
+@keyframes shooting-star-1 {
+  0% { 
+    transform: translateX(0) translateY(0) rotate(45deg);
+    opacity: 1;
+  }
+  70% {
+    opacity: 1;
+  }
+  100% { 
+    transform: translateX(500px) translateY(500px) rotate(45deg);
+    opacity: 0;
+  }
+}
+
+@keyframes shooting-star-2 {
+  0% { 
+    transform: translateX(300px) translateY(0) rotate(-30deg);
+    opacity: 1;
+  }
+  70% {
+    opacity: 1;
+  }
+  100% { 
+    transform: translateX(0) translateY(200px) rotate(-30deg);
+    opacity: 0;
+  }
+}
+
+@keyframes shooting-star-3 {
+  0% { 
+    transform: translateX(200px) translateY(0) rotate(15deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% { 
+    transform: translateX(550px) translateY(300px) rotate(15deg);
+    opacity: 0;
+  }
+}
+
+body {
+  margin: 0;
+  font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: radial-gradient(ellipse at bottom, #1B2735 0%, #090A0F 100%);
+  color: #f7fafc;
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Stars background */
+.stars {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -2;
+  pointer-events: none;
+}
+
+.stars-1 {
+  background-image: 
+    radial-gradient(2px 2px at 20px 30px, #ffffff 50%, rgba(0,0,0,0)),
+    radial-gradient(2px 2px at 40px 70px, #ffffff 50%, rgba(0,0,0,0)),
+    radial-gradient(1px 1px at 90px 40px, #ffffff 50%, rgba(0,0,0,0)),
+    radial-gradient(2px 2px at 160px 120px, #ffffff 50%, rgba(0,0,0,0)),
+    radial-gradient(1px 1px at 230px 50px, #ffffff 50%, rgba(0,0,0,0)),
+    radial-gradient(1px 1px at 320px 80px, #ffffff 50%, rgba(0,0,0,0)),
+    radial-gradient(1px 1px at 400px 160px, #ffffff 50%, rgba(0,0,0,0)),
+    radial-gradient(2px 2px at 500px 100px, #ffffff 50%, rgba(0,0,0,0)),
+    radial-gradient(1px 1px at 50px 200px, #ffffff 50%, rgba(0,0,0,0)),
+    radial-gradient(1px 1px at 150px 280px, #ffffff 50%, rgba(0,0,0,0)),
+    radial-gradient(2px 2px at 220px 350px, #ffffff 50%, rgba(0,0,0,0)),
+    radial-gradient(1px 1px at 300px 320px, #ffffff 50%, rgba(0,0,0,0)),
+    radial-gradient(1px 1px at 400px 400px, #ffffff 50%, rgba(0,0,0,0));
+  background-repeat: repeat;
+  background-size: 600px 600px;
+  animation: twinkle 4s infinite ease-in-out;
+}
+
+.stars-2 {
+  background-image: 
+    radial-gradient(1px 1px at 10px 10px, #ffffff 50%, rgba(0,0,0,0)),
+    radial-gradient(1px 1px at 150px 150px, #ffffff 50%, rgba(0,0,0,0)),
+    radial-gradient(1px 1px at 300px 50px, #ffffff 50%, rgba(0,0,0,0)),
+    radial-gradient(1px 1px at 450px 150px, #ffffff 50%, rgba(0,0,0,0)),
+    radial-gradient(1px 1px at 500px 300px, #ffffff 50%, rgba(0,0,0,0)),
+    radial-gradient(1px 1px at 350px 200px, #ffffff 50%, rgba(0,0,0,0)),
+    radial-gradient(1px 1px at 100px 250px, #ffffff 50%, rgba(0,0,0,0));
+  background-repeat: repeat;
+  background-size: 550px 550px;
+  animation: twinkle 6s infinite ease-in-out;
+  animation-delay: 2s;
+}
+
+/* Shooting stars */
+.shooting-star {
+  position: fixed;
+  background: white;
+  border-radius: 50%;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.shooting-star-1 {
+  width: 3px;
+  height: 3px;
+  box-shadow: 0 0 4px 2px rgba(255, 255, 255, 0.7);
+  animation: shooting-star-1 8s infinite linear;
+  animation-delay: 3s;
+  top: 80px;
+  left: 50px;
+}
+
+.shooting-star-2 {
+  width: 2px;
+  height: 2px;
+  box-shadow: 0 0 3px 1px rgba(255, 255, 255, 0.6);
+  animation: shooting-star-2 6s infinite linear;
+  animation-delay: 7s;
+  top: 40px;
+  right: 100px;
+}
+
+.shooting-star-3 {
+  width: 2px;
+  height: 2px;
+  box-shadow: 0 0 5px 2px rgba(255, 215, 0, 0.6);
+  animation: shooting-star-3 12s infinite linear;
+  animation-delay: 11s;
+  top: 250px;
+  left: 200px;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Playfair Display', serif;
+}
+
+* {
+  box-sizing: border-box;
+}

@@ -1,0 +1,13 @@
+# Python virtual environment
+venv/
+__pycache__/
+*.py[cod]
+*$py.class
+
+# IDE files
+.vscode/
+.idea/
+
+# Anthropic API key file
+.anthropic_key
+.env
