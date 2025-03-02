@@ -108,13 +108,12 @@ def generate_horoscope(theme="general", sign="", custom_topic="", language="en")
             {"Знак зодиака: " + sign if sign else "Это общий гороскоп."}
             {sign_traits}
             
-            Напишите КОРОТКИЙ гороскоп, содержащий ТОЛЬКО 2-4 утверждения, включая:
+            Напишите ОЧЕНЬ КОРОТКИЙ гороскоп, содержащий ТОЛЬКО 2-3 КРАТКИХ утверждения, включая:
             1. Краткое предсказание о {theme} человека в ближайшие дни
             2. Короткий совет или наставление
-            3. Космическое наблюдение, связанное с его текущим путем
             
-            Сохраняйте мистический тон, но будьте КРАТКИМИ. Каждое утверждение должно быть лаконичным и по существу.
-            Весь гороскоп должен состоять не более чем из 3-4 предложений.
+            Избегайте сложных метафор и длинных предложений. Пишите просто и понятно.
+            Весь гороскоп должен состоять не более чем из 2-3 КОРОТКИХ предложений.
             
             ОЧЕНЬ ВАЖНО! Пишите ТОЛЬКО на русском языке.
             """
@@ -126,28 +125,27 @@ def generate_horoscope(theme="general", sign="", custom_topic="", language="en")
             {"Zodiac sign: " + sign if sign else "This is a general horoscope."}
             {sign_traits}
             
-            Write a SHORT horoscope with ONLY 2-4 statements that includes:
+            Write a VERY SHORT horoscope with ONLY 2-3 BRIEF statements that includes:
             1. A brief prediction about the person's {theme} in the coming days
             2. A short piece of advice or guidance
-            3. A cosmic insight that relates to their current path
             
-            Keep it mystical but BRIEF. Each statement should be concise and to the point.
-            The entire horoscope should be no more than 3-4 sentences total.
+            Avoid complex metaphors and long sentences. Write simply and clearly.
+            The entire horoscope should be no more than 2-3 SHORT sentences total.
             """
         
         # Call Claude API with Anthropic client
         try:
             # Set up the system prompt for the astrologer based on language
             if language == "ru":
-                system_prompt = "Вы мистический астролог, который пишет лаконичные, глубокие гороскопы. Ваш тон мудрый, мистический и позитивный - но вы предельно кратки, используя не более 3-4 предложений всего. Пишете ТОЛЬКО на русском языке. Не подписывайте свои предсказания."
+                system_prompt = "Вы мистический астролог, который пишет очень краткие, глубокие гороскопы. Ваш тон мудрый, мистический и позитивный - но вы ОЧЕНЬ кратки, используя не более 2-3 коротких предложений всего. Пишете ТОЛЬКО на русском языке. Не подписывайте свои предсказания. Избегайте сложных метафор и очень длинных предложений."
             else:
-                system_prompt = "You are a mystical astrologer who writes concise, insightful horoscopes. Your tone is wise, mystical, and positive - but you are extremely brief, using no more than 3-4 sentences total. Do not sign your predictions."
+                system_prompt = "You are a mystical astrologer who writes very concise, insightful horoscopes. Your tone is wise, mystical, and positive - but you are EXTREMELY brief, using only 2-3 short sentences total. Keep predictions simple and easy to understand. Avoid complex metaphors and very long sentences. Do not sign your predictions."
             
             # Try with Claude 3.5 Sonnet
             try:
                 message = client.messages.create(
                     model="claude-3-5-sonnet-latest",
-                    max_tokens=150,
+                    max_tokens=120,  # Reduce token limit to ensure we don't get cutoff
                     temperature=0.7,
                     system=system_prompt,
                     messages=[
@@ -161,7 +159,7 @@ def generate_horoscope(theme="general", sign="", custom_topic="", language="en")
                 try:
                     message = client.messages.create(
                         model="claude-3-opus-20240229",
-                        max_tokens=150,
+                        max_tokens=120,  # Reduce token limit for consistent length
                         temperature=0.7,
                         system=system_prompt,
                         messages=[
