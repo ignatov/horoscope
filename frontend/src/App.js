@@ -124,6 +124,46 @@ const Loading = styled.div`
   color: #e9ecef;
 `;
 
+const CopyButton = styled.button`
+  background: linear-gradient(135deg, #9966ff 0%, #5e62ff 100%);
+  color: white;
+  border: none;
+  padding: 0.4rem 0.8rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  border-radius: 6px;
+  cursor: pointer;
+  margin: 1rem auto 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s, box-shadow 0.2s;
+  width: 100%;
+  max-width: 300px;
+  
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 3px 10px rgba(94, 98, 255, 0.4);
+  }
+  
+  &:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+`;
+
+const CopySuccess = styled.div`
+  text-align: center;
+  margin-top: 0.5rem;
+  color: #66ff99;
+  font-size: 0.75rem;
+  opacity: ${props => props.visible ? 1 : 0};
+  transition: opacity 0.3s;
+  height: ${props => props.visible ? 'auto' : 0};
+`;
+
 const LanguageToggle = styled.div`
   position: absolute;
   top: 10px;
@@ -235,6 +275,7 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [showCustom, setShowCustom] = useState(theme === 'custom');
   const [language, setLanguage] = useState(getSavedLanguage());
+  const [copySuccess, setCopySuccess] = useState(false);
 
   const zodiacSignsEn = [
     'Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo',
@@ -555,6 +596,38 @@ function App() {
               </HoroscopeCard>
             </div>
           ))}
+          
+          {/* Copy to clipboard button */}
+          <CopyButton 
+            onClick={() => {
+              // Format all horoscopes into a single text
+              const horoscopesText = horoscopes
+                .map(h => `${h.sign ? (language === 'ru' ? `ПРОГНОЗ ДЛЯ ${h.sign.toUpperCase()}` : `FORECAST FOR ${h.sign.toUpperCase()}`) : ''}
+${h.text}
+`)
+                .join('\n---\n\n');
+              
+              // Copy to clipboard
+              navigator.clipboard.writeText(horoscopesText)
+                .then(() => {
+                  setCopySuccess(true);
+                  // Hide success message after 3 seconds
+                  setTimeout(() => setCopySuccess(false), 3000);
+                })
+                .catch(err => {
+                  console.error('Failed to copy text: ', err);
+                  alert(language === 'ru' 
+                    ? 'Не удалось скопировать текст. Попробуйте еще раз.' 
+                    : 'Failed to copy text. Please try again.');
+                });
+            }}
+          >
+            {language === 'ru' ? 'Скопировать все гороскопы' : 'Copy all horoscopes'}
+          </CopyButton>
+          
+          <CopySuccess visible={copySuccess}>
+            {language === 'ru' ? '✓ Скопировано в буфер обмена' : '✓ Copied to clipboard'}
+          </CopySuccess>
         </div>
       )}
     </AppContainer>
