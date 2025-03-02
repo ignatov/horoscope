@@ -69,6 +69,7 @@ body {
   min-height: 100vh;
   position: relative;
   overflow-x: hidden;
+  -webkit-text-size-adjust: 100%;
 }
 
 /* Звёздный фон */
@@ -162,6 +163,7 @@ body {
   margin: 0 auto;
   padding: 0.8rem;
   position: relative;
+  width: 100%;
 }
 
 header {
@@ -171,7 +173,7 @@ header {
 }
 
 .title {
-  font-size: 1.8rem;
+  font-size: 1.6rem;
   margin-bottom: 0.2rem;
   color: #f8f9fa;
   text-shadow: 0 0 10px rgba(255, 215, 0, 0.7);
@@ -187,6 +189,7 @@ header {
 .horoscope-form {
   background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   border-radius: 10px;
   padding: 0.8rem;
   margin-bottom: 0.8rem;
@@ -243,9 +246,9 @@ header {
   font-weight: 500;
   border-radius: 6px;
   cursor: pointer;
-  min-width: 180px;
-  height: 36px;
-  line-height: 36px;
+  min-width: 160px;
+  height: 40px;
+  line-height: 40px;
   transition: box-shadow 0.2s;
   display: flex;
   align-items: center;
@@ -256,12 +259,16 @@ header {
   box-shadow: 0 3px 10px rgba(255, 94, 98, 0.4);
 }
 
+.button:active {
+  transform: scale(0.98);
+}
+
 .icon-button {
   background: linear-gradient(135deg, #9966ff 0%, #5e62ff 100%);
   color: white;
   border: none;
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   border-radius: 6px;
   position: relative;
   display: flex;
@@ -273,6 +280,10 @@ header {
 
 .icon-button:hover {
   box-shadow: 0 3px 10px rgba(94, 98, 255, 0.4);
+}
+
+.icon-button:active {
+  transform: scale(0.98);
 }
 
 .icon-button:disabled {
@@ -291,6 +302,7 @@ header {
 .horoscope-card {
   background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   border-radius: 10px;
   padding: 1rem;
   margin-top: 0.8rem;
@@ -299,8 +311,11 @@ header {
 }
 
 .horoscope-text {
-  line-height: 1.4;
+  line-height: 1.5;
   font-size: 0.95rem;
+  -webkit-hyphens: auto;
+  -ms-hyphens: auto;
+  hyphens: auto;
 }
 
 .horoscope-separator {
@@ -312,15 +327,10 @@ header {
 
 /* Стили для переключателя языка */
 .language-toggle {
-  position: absolute;
-  top: 10px;
-  right: 0;
   display: flex;
-  justify-content: flex-end;
-  z-index: 10;
-  max-width: 800px;
-  width: 100%;
-  padding-right: 1rem;
+  justify-content: center;
+  margin-top: 0.5rem;
+  gap: 0.5rem;
 }
 
 .language-button {
@@ -359,7 +369,7 @@ header {
 .zodiac-button {
   display: inline-block;
   background: rgba(255, 255, 255, 0.1);
-  padding: 0.3rem 0.5rem;
+  padding: 0.35rem 0.6rem;
   border-radius: 15px;
   cursor: pointer;
   transition: background 0.2s, transform 0.1s;
@@ -371,6 +381,8 @@ header {
   color: #ffffff;
   font-family: 'Poppins', sans-serif;
   margin: 0.15rem;
+  min-width: 2.8rem;
+  text-align: center;
 }
 
 .zodiac-button:hover {
@@ -405,4 +417,62 @@ header {
 /* Сохраняем для обратной совместимости */
 .zodiac-label {
   display: none;
+}
+
+/* Медиа-запросы для мобильных устройств */
+@media screen and (max-width: 480px) {
+  .app-container {
+    padding: 0.6rem;
+  }
+  
+  .title {
+    font-size: 1.4rem;
+  }
+  
+  .subtitle {
+    font-size: 0.8rem;
+  }
+  
+  /* Удалено, так как измененные стили теперь применяются глобально */
+  
+  .zodiac-button {
+    padding: 0.3rem 0.5rem;
+    font-size: 0.7rem;
+    min-width: 2.6rem;
+  }
+  
+  .form-row {
+    margin-bottom: 0.5rem;
+  }
+  
+  .button {
+    padding: 0 1rem;
+    min-width: 150px;
+    font-size: 0.75rem;
+  }
+}
+
+/* Оптимизация для iPhone 12 mini */
+@media screen and (max-width: 375px) {
+  .title {
+    font-size: 1.2rem;
+  }
+  
+  .zodiac-container {
+    gap: 0.2rem;
+  }
+  
+  .zodiac-button {
+    margin: 0.1rem;
+    padding: 0.25rem 0.4rem;
+    min-width: 2.4rem;
+  }
+  
+  .button {
+    min-width: 140px;
+  }
+  
+  .horoscope-text {
+    font-size: 0.9rem;
+  }
 }
