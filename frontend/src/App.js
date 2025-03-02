@@ -70,17 +70,24 @@ const Input = styled.input`
   margin-top: 0.25rem;
 `;
 
+const buttonHeight = '36px'; // Shared height for both buttons
+
 const Button = styled.button`
   background: linear-gradient(135deg, #ff9966 0%, #ff5e62 100%);
   color: white;
   border: none;
-  padding: 0.4rem 1.2rem;
+  padding: 0 1.2rem;
   font-size: 0.8rem;
   font-weight: 500;
   border-radius: 6px;
   cursor: pointer;
   min-width: 180px;
+  height: ${buttonHeight};
+  line-height: ${buttonHeight};
   transition: transform 0.2s, box-shadow 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   
   &:hover {
     transform: translateY(-1px);
@@ -100,8 +107,8 @@ const IconButton = styled.button`
   background: linear-gradient(135deg, #9966ff 0%, #5e62ff 100%);
   color: white;
   border: none;
-  width: 36px;
-  height: 36px;
+  width: ${buttonHeight};
+  height: ${buttonHeight};
   border-radius: 6px;
   position: relative;
   display: flex;
