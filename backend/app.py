@@ -10,6 +10,12 @@ import pathlib
 ROOT_DIR = pathlib.Path(__file__).parent.parent.absolute()
 FRONTEND_DIR = os.path.join(ROOT_DIR, 'frontend')
 
+# Для PythonAnywhere можно установить абсолютные пути, если нужно
+# PYTHONANYWHERE_USERNAME = os.environ.get('PYTHONANYWHERE_USERNAME', '')
+# if PYTHONANYWHERE_USERNAME:
+#     ROOT_DIR = f'/home/{PYTHONANYWHERE_USERNAME}/mysite'
+#     FRONTEND_DIR = os.path.join(ROOT_DIR, 'frontend')
+
 app = Flask(__name__, static_folder=os.path.join(FRONTEND_DIR))
 
 # Initialize Anthropic client
