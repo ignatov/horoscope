@@ -66,9 +66,35 @@ def load_api_key():
         
     return api_key
 
-# Initialize Anthropic client
+# Initialize Anthropic client with proxy and timeout settings
 ANTHROPIC_API_KEY = load_api_key()
-client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
+
+# Проверяем, указаны ли переменные окружения для прокси
+PROXY_URL = os.environ.get('PROXY_URL', None)
+if PROXY_URL:
+    print(f"[{get_log_time()}] INFO - Используем прокси: {PROXY_URL}")
+    import httpx
+    # Создаем клиент Anthropic с настройками прокси
+    client = anthropic.Anthropic(
+        api_key=ANTHROPIC_API_KEY,
+        http_client=httpx.Client(
+            proxies=PROXY_URL,
+            timeout=30.0  # Увеличенный таймаут для прокси
+        )
+    )
+else:
+    # Стандартная инициализация без прокси
+    client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
+
+# Проверка соединения с Anthropic API
+try:
+    print(f"[{get_log_time()}] INFO - Проверка соединения с Anthropic API...")
+    # Запрос только для проверки соединения
+    models = client.models.list()
+    print(f"[{get_log_time()}] INFO - Соединение с Anthropic API установлено успешно.")
+except Exception as e:
+    print(f"[{get_log_time()}] WARNING - Не удалось проверить соединение с Anthropic API: {str(e)}")
+    print(f"[{get_log_time()}] WARNING - Приложение будет использовать запасные гороскопы при ошибках соединения.")
 
 # Логируем запуск приложения
 print(f"[{get_log_time()}] INFO - Flask application started")
@@ -208,46 +234,30 @@ def generate_horoscope(theme="general", sign="", custom_topic="", language="en")
             # Логируем запрос к API с информацией
             print(f"[{get_log_time()}] INFO - Запрос гороскопа: тема={theme}, знак={sign if sign else 'Общий'}, язык={language}")
             
-            # Try with Claude 3.5 Sonnet
-            try:
-                # Засекаем время запроса
-                import time
-                start_time = time.time()
-                
-                message = client.messages.create(
-                    model="claude-3-5-sonnet-latest",
-                    max_tokens=150,  # Allow for 4 sentences
-                    temperature=0.7,
-                    system=system_prompt,
-                    messages=[
-                        {"role": "user", "content": prompt}
-                    ]
-                )
-                
-                # Вычисляем время запроса
-                request_time = time.time() - start_time
-                
-                horoscope_text = message.content[0].text.strip()
-                
-                # Логируем успешный ответ
-                print(f"[{get_log_time()}] INFO - Получен ответ от Claude 3.5 Sonnet за {request_time:.2f}s")
-            except Exception as e1:
-                print(f"[{get_log_time()}] ERROR - Ошибка Claude 3.5 Sonnet: {str(e1)}")
-                print(f"Error with Claude 3.5 Sonnet: {e1}")
-                
-                # If that fails, try Claude 3 Opus
+            # Try with Claude 3.5 Sonnet with retry and timeout
+            import time
+            import httpx
+            
+            max_retries = 2  # Количество попыток подключения
+            retry_count = 0
+            use_fallback = True  # По умолчанию используем запасной контент, если все попытки неудачны
+            
+            while retry_count < max_retries:
                 try:
-                    # Засекаем время запроса для резервной модели
+                    # Засекаем время запроса
                     start_time = time.time()
+                    print(f"[{get_log_time()}] INFO - Попытка {retry_count+1} подключения к Claude 3.5 Sonnet...")
                     
+                    # Установка таймаута 10 секунд для предотвращения долгого ожидания
                     message = client.messages.create(
-                        model="claude-3-opus-20240229",
+                        model="claude-3-5-sonnet-latest",
                         max_tokens=150,  # Allow for 4 sentences
                         temperature=0.7,
                         system=system_prompt,
                         messages=[
                             {"role": "user", "content": prompt}
-                        ]
+                        ],
+                        timeout=10.0  # 10 секунд таймаут
                     )
                     
                     # Вычисляем время запроса
@@ -255,14 +265,70 @@ def generate_horoscope(theme="general", sign="", custom_topic="", language="en")
                     
                     horoscope_text = message.content[0].text.strip()
                     
-                    # Логируем успешный ответ от резервной модели
-                    print(f"[{get_log_time()}] INFO - Получен ответ от резервной модели Claude 3 Opus за {request_time:.2f}s")
-                except Exception as e2:
-                    print(f"[{get_log_time()}] ERROR - Ошибка резервной модели Claude 3 Opus: {str(e2)}")
-                    print(f"Error with Claude 3 Opus: {e2}")
-                    # Final fallback - use the pre-written content
-                    print(f"[{get_log_time()}] WARNING - Все модели Claude не сработали, используем запасной контент")
-                    raise Exception("All Claude models failed")
+                    # Логируем успешный ответ
+                    print(f"[{get_log_time()}] INFO - Получен ответ от Claude 3.5 Sonnet за {request_time:.2f}s")
+                    use_fallback = False  # Успех, не требуется запасной контент
+                    break  # Выходим из цикла после успешного запроса
+                    
+                except (httpx.ConnectTimeout, httpx.ConnectError, httpx.ReadTimeout) as e1:
+                    # Специфические ошибки соединения
+                    print(f"[{get_log_time()}] ERROR - Ошибка соединения с Claude 3.5 Sonnet: {str(e1)}")
+                    retry_count += 1
+                    print(f"[{get_log_time()}] INFO - Ожидание перед повторной попыткой ({retry_count}/{max_retries})...")
+                    time.sleep(2)  # Ждем 2 секунды перед повторной попыткой
+                    
+                except Exception as e1:
+                    # Другие ошибки
+                    print(f"[{get_log_time()}] ERROR - Ошибка Claude 3.5 Sonnet: {str(e1)}")
+                    break  # Переходим к запасной модели
+            
+            # Если не получилось с Sonnet, пробуем Opus
+            if use_fallback and retry_count >= max_retries:
+                retry_count = 0  # Сбрасываем счетчик для Opus
+                
+                while retry_count < max_retries:
+                    try:
+                        # Засекаем время запроса для резервной модели
+                        print(f"[{get_log_time()}] INFO - Попытка {retry_count+1} подключения к резервной модели Claude 3 Opus...")
+                        start_time = time.time()
+                        
+                        message = client.messages.create(
+                            model="claude-3-opus-20240229",
+                            max_tokens=150,  # Allow for 4 sentences
+                            temperature=0.7,
+                            system=system_prompt,
+                            messages=[
+                                {"role": "user", "content": prompt}
+                            ],
+                            timeout=10.0  # 10 секунд таймаут
+                        )
+                        
+                        # Вычисляем время запроса
+                        request_time = time.time() - start_time
+                        
+                        horoscope_text = message.content[0].text.strip()
+                        
+                        # Логируем успешный ответ от резервной модели
+                        print(f"[{get_log_time()}] INFO - Получен ответ от резервной модели Claude 3 Opus за {request_time:.2f}s")
+                        use_fallback = False  # Успех, не требуется запасной контент
+                        break
+                        
+                    except (httpx.ConnectTimeout, httpx.ConnectError, httpx.ReadTimeout) as e2:
+                        # Специфические ошибки соединения
+                        print(f"[{get_log_time()}] ERROR - Ошибка соединения с Claude 3 Opus: {str(e2)}")
+                        retry_count += 1
+                        if retry_count < max_retries:
+                            print(f"[{get_log_time()}] INFO - Ожидание перед повторной попыткой ({retry_count}/{max_retries})...")
+                            time.sleep(2)  # Ждем 2 секунды перед повторной попыткой
+                            
+                    except Exception as e2:
+                        print(f"[{get_log_time()}] ERROR - Ошибка резервной модели Claude 3 Opus: {str(e2)}")
+                        break
+            
+            # Если все попытки не удались, используем запасной контент
+            if use_fallback:
+                print(f"[{get_log_time()}] WARNING - Все модели Claude не сработали, используем запасной контент")
+                raise Exception("All Claude models failed")
         
         except Exception as e:
             print(f"[{get_log_time()}] ERROR - Ошибка вызова Anthropic API: {str(e)}")
