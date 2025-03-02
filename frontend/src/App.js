@@ -133,7 +133,7 @@ const CopyButton = styled.button`
   font-weight: 500;
   border-radius: 6px;
   cursor: pointer;
-  margin: 1rem auto 0;
+  margin: 0 auto 1rem;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -156,7 +156,7 @@ const CopyButton = styled.button`
 
 const CopySuccess = styled.div`
   text-align: center;
-  margin-top: 0.5rem;
+  margin: -0.5rem auto 1rem;
   color: #66ff99;
   font-size: 0.75rem;
   opacity: ${props => props.visible ? 1 : 0};
@@ -583,21 +583,7 @@ function App() {
         </Loading>
       ) : horoscopes.length > 0 && (
         <div>
-          {horoscopes.map((horoscope, index) => (
-            <div key={index}>
-              {index > 0 && <HoroscopeSeparator />}
-              <HoroscopeCard>
-                <HoroscopeTitle>
-                  {horoscope.sign 
-                    ? (language === 'ru' ? `Прогноз для ${horoscope.sign}` : `Forecast for ${horoscope.sign}`) 
-                    : (language === 'ru' ? 'Сообщение' : 'Message')}
-                </HoroscopeTitle>
-                <HoroscopeText>{horoscope.text}</HoroscopeText>
-              </HoroscopeCard>
-            </div>
-          ))}
-          
-          {/* Copy to clipboard button */}
+          {/* Copy to clipboard button - now at the top */}
           <CopyButton 
             onClick={() => {
               // Format all horoscopes into a single text
@@ -628,6 +614,21 @@ ${h.text}
           <CopySuccess visible={copySuccess}>
             {language === 'ru' ? '✓ Скопировано в буфер обмена' : '✓ Copied to clipboard'}
           </CopySuccess>
+          
+          {/* Horoscope cards */}
+          {horoscopes.map((horoscope, index) => (
+            <div key={index}>
+              {index > 0 && <HoroscopeSeparator />}
+              <HoroscopeCard>
+                <HoroscopeTitle>
+                  {horoscope.sign 
+                    ? (language === 'ru' ? `Прогноз для ${horoscope.sign}` : `Forecast for ${horoscope.sign}`) 
+                    : (language === 'ru' ? 'Сообщение' : 'Message')}
+                </HoroscopeTitle>
+                <HoroscopeText>{horoscope.text}</HoroscopeText>
+              </HoroscopeCard>
+            </div>
+          ))}
         </div>
       )}
     </AppContainer>
