@@ -7,7 +7,13 @@ import os
 import pathlib
 
 # Получаем абсолютный путь к корневой директории проекта
-ROOT_DIR = pathlib.Path(__file__).parent.parent.absolute()
+if os.environ.get('FLASK_APP_ROOT_DIR'):
+    # Используем путь из переменной окружения, если установлена
+    ROOT_DIR = os.environ.get('FLASK_APP_ROOT_DIR')
+else:
+    # Иначе определяем относительно текущего файла
+    ROOT_DIR = pathlib.Path(__file__).parent.parent.absolute()
+
 FRONTEND_DIR = os.path.join(ROOT_DIR, 'frontend')
 
 # Для PythonAnywhere можно установить абсолютные пути, если нужно
@@ -16,7 +22,11 @@ FRONTEND_DIR = os.path.join(ROOT_DIR, 'frontend')
 #     ROOT_DIR = f'/home/{PYTHONANYWHERE_USERNAME}/mysite'
 #     FRONTEND_DIR = os.path.join(ROOT_DIR, 'frontend')
 
-app = Flask(__name__, static_folder=os.path.join(FRONTEND_DIR))
+# Настраиваем Flask с явным указанием статических файлов
+# static_url_path устанавливаем пустым, чтобы сервить статику из корня
+app = Flask(__name__, 
+            static_folder=FRONTEND_DIR,
+            static_url_path='')
 
 # Initialize Anthropic client
 ANTHROPIC_API_KEY = config('ANTHROPIC_API_KEY', default='')
