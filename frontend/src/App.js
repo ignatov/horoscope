@@ -154,20 +154,40 @@ const LanguageButton = styled.button`
 
 const CheckboxContainer = styled.div`
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
+  flex-wrap: nowrap;
+  gap: 0.4rem;
   margin-top: 0.5rem;
+  overflow-x: auto;
+  padding-bottom: 0.5rem;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 94, 98, 0.4) rgba(255, 255, 255, 0.1);
+  
+  &::-webkit-scrollbar {
+    height: 6px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 94, 98, 0.4);
+    border-radius: 3px;
+  }
 `;
 
 const CheckboxLabel = styled.label`
   display: flex;
   align-items: center;
   background: rgba(255, 255, 255, 0.1);
-  padding: 0.4rem 0.8rem;
+  padding: 0.4rem 0.6rem;
   border-radius: 20px;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: background 0.2s, transform 0.1s;
   user-select: none;
+  white-space: nowrap;
+  font-size: 0.85rem;
   
   &:hover {
     background: rgba(255, 255, 255, 0.2);
@@ -175,6 +195,7 @@ const CheckboxLabel = styled.label`
   
   &.selected {
     background: rgba(255, 94, 98, 0.4);
+    transform: scale(1.05);
   }
 `;
 
@@ -188,7 +209,8 @@ const HiddenCheckbox = styled.input.attrs({ type: 'checkbox' })`
 // App Component
 function App() {
   const [theme, setTheme] = useState('general');
-  const [selectedSigns, setSelectedSigns] = useState([]);
+  const [selectedSignsRu, setSelectedSignsRu] = useState([]);
+  const [selectedSignsEn, setSelectedSignsEn] = useState([]);
   const [customTopic, setCustomTopic] = useState('');
   const [horoscopes, setHoroscopes] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -205,8 +227,8 @@ function App() {
     'Весы', 'Скорпион', 'Стрелец', 'Козерог', 'Водолей', 'Рыбы'
   ];
   
-  // Mapping between Russian and English signs for backend API
-  const zodiacSignMap = {
+  // Mapping between Russian and English zodiac signs (both directions)
+  const zodiacSignMapRuToEn = {
     'Овен': 'Aries', 
     'Телец': 'Taurus', 
     'Близнецы': 'Gemini', 
@@ -220,6 +242,21 @@ function App() {
     'Водолей': 'Aquarius', 
     'Рыбы': 'Pisces'
   };
+  
+  const zodiacSignMapEnToRu = {
+    'Aries': 'Овен',
+    'Taurus': 'Телец',
+    'Gemini': 'Близнецы',
+    'Cancer': 'Рак',
+    'Leo': 'Лев',
+    'Virgo': 'Дева',
+    'Libra': 'Весы',
+    'Scorpio': 'Скорпион',
+    'Sagittarius': 'Стрелец',
+    'Capricorn': 'Козерог',
+    'Aquarius': 'Водолей',
+    'Pisces': 'Рыбы'
+  };
 
   const themeOptions = [
     { value: 'general', label: 'General' },
@@ -228,15 +265,39 @@ function App() {
     { value: 'health', label: 'Health & Wellness' },
     { value: 'custom', label: 'Custom Topic...' }
   ];
-
+  
+  // Current selected signs based on language
+  const selectedSigns = language === 'ru' ? selectedSignsRu : selectedSignsEn;
+  
+  // Toggle sign selection and maintain sync between languages
   const toggleSign = (sign) => {
-    setSelectedSigns(prev => {
-      if (prev.includes(sign)) {
-        return prev.filter(s => s !== sign);
-      } else {
-        return [...prev, sign];
-      }
-    });
+    if (language === 'ru') {
+      setSelectedSignsRu(prev => {
+        const newSelection = prev.includes(sign) ? 
+          prev.filter(s => s !== sign) : 
+          [...prev, sign];
+          
+        // Keep English selection in sync
+        setSelectedSignsEn(
+          newSelection.map(ruSign => zodiacSignMapRuToEn[ruSign])
+        );
+        
+        return newSelection;
+      });
+    } else {
+      setSelectedSignsEn(prev => {
+        const newSelection = prev.includes(sign) ? 
+          prev.filter(s => s !== sign) : 
+          [...prev, sign];
+          
+        // Keep Russian selection in sync
+        setSelectedSignsRu(
+          newSelection.map(enSign => zodiacSignMapEnToRu[enSign])
+        );
+        
+        return newSelection;
+      });
+    }
   };
 
   const fetchHoroscope = async (e) => {
@@ -272,8 +333,8 @@ function App() {
       
       // Fetch horoscope for each selected sign
       for (const sign of selectedSigns) {
-        // Convert Russian zodiac sign to English if needed
-        const apiSign = language === 'ru' ? zodiacSignMap[sign] || sign : sign;
+        // Convert to English for API regardless of current UI language
+        const apiSign = language === 'ru' ? zodiacSignMapRuToEn[sign] : sign;
         
         // Use fetch with full URL including custom topic and language
         const url = `http://localhost:5001/api/horoscope?theme=${theme}&sign=${apiSign}&language=${language}${theme === 'custom' ? `&customTopic=${encodeURIComponent(customTopic)}` : ''}`;
