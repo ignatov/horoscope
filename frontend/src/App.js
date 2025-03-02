@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 
 // Styled components
@@ -191,14 +191,50 @@ const HiddenCheckbox = styled.input.attrs({ type: 'checkbox' })`
 
 // App Component
 function App() {
-  const [theme, setTheme] = useState('general');
-  const [selectedSignsRu, setSelectedSignsRu] = useState([]);
-  const [selectedSignsEn, setSelectedSignsEn] = useState([]);
-  const [customTopic, setCustomTopic] = useState('');
+  // Load saved preferences from localStorage or use defaults
+  const getSavedTheme = () => {
+    const savedTheme = localStorage.getItem('horoscopeTheme');
+    return savedTheme || 'general';
+  };
+  
+  const getSavedSignsRu = () => {
+    try {
+      const savedSigns = localStorage.getItem('horoscopeSignsRu');
+      return savedSigns ? JSON.parse(savedSigns) : [];
+    } catch (e) {
+      console.error('Error parsing saved signs from localStorage:', e);
+      return [];
+    }
+  };
+  
+  const getSavedSignsEn = () => {
+    try {
+      const savedSigns = localStorage.getItem('horoscopeSignsEn');
+      return savedSigns ? JSON.parse(savedSigns) : [];
+    } catch (e) {
+      console.error('Error parsing saved signs from localStorage:', e);
+      return [];
+    }
+  };
+  
+  const getSavedLanguage = () => {
+    const savedLanguage = localStorage.getItem('horoscopeLanguage');
+    return savedLanguage === 'en' ? 'en' : 'ru'; // Default to Russian if invalid
+  };
+  
+  const getSavedCustomTopic = () => {
+    return localStorage.getItem('horoscopeCustomTopic') || '';
+  };
+  
+  // Initialize state with saved values
+  const [theme, setTheme] = useState(getSavedTheme());
+  const [selectedSignsRu, setSelectedSignsRu] = useState(getSavedSignsRu());
+  const [selectedSignsEn, setSelectedSignsEn] = useState(getSavedSignsEn());
+  const [customTopic, setCustomTopic] = useState(getSavedCustomTopic());
   const [horoscopes, setHoroscopes] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [showCustom, setShowCustom] = useState(false);
-  const [language, setLanguage] = useState('ru'); // Default to Russian
+  const [showCustom, setShowCustom] = useState(theme === 'custom');
+  const [language, setLanguage] = useState(getSavedLanguage());
 
   const zodiacSignsEn = [
     'Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo',
@@ -258,6 +294,40 @@ function App() {
   // Current selected signs based on language
   const selectedSigns = language === 'ru' ? selectedSignsRu : selectedSignsEn;
   
+  // Save preferences to localStorage whenever they change
+  const savePreferences = (key, value) => {
+    try {
+      if (typeof value === 'object') {
+        localStorage.setItem(key, JSON.stringify(value));
+      } else {
+        localStorage.setItem(key, value);
+      }
+    } catch (e) {
+      console.error('Error saving to localStorage:', e);
+    }
+  };
+  
+  // Save preferences whenever they change
+  useEffect(() => {
+    savePreferences('horoscopeTheme', theme);
+  }, [theme]);
+  
+  useEffect(() => {
+    savePreferences('horoscopeSignsRu', selectedSignsRu);
+  }, [selectedSignsRu]);
+  
+  useEffect(() => {
+    savePreferences('horoscopeSignsEn', selectedSignsEn);
+  }, [selectedSignsEn]);
+  
+  useEffect(() => {
+    savePreferences('horoscopeLanguage', language);
+  }, [language]);
+  
+  useEffect(() => {
+    savePreferences('horoscopeCustomTopic', customTopic);
+  }, [customTopic]);
+
   // Toggle sign selection and maintain sync between languages
   const toggleSign = (sign) => {
     if (language === 'ru') {
@@ -267,9 +337,8 @@ function App() {
           [...prev, sign];
           
         // Keep English selection in sync
-        setSelectedSignsEn(
-          newSelection.map(ruSign => zodiacSignMapRuToEn[ruSign])
-        );
+        const syncedEnSigns = newSelection.map(ruSign => zodiacSignMapRuToEn[ruSign]);
+        setSelectedSignsEn(syncedEnSigns);
         
         return newSelection;
       });
@@ -280,9 +349,8 @@ function App() {
           [...prev, sign];
           
         // Keep Russian selection in sync
-        setSelectedSignsRu(
-          newSelection.map(enSign => zodiacSignMapEnToRu[enSign])
-        );
+        const syncedRuSigns = newSelection.map(enSign => zodiacSignMapEnToRu[enSign]);
+        setSelectedSignsRu(syncedRuSigns);
         
         return newSelection;
       });
@@ -372,13 +440,19 @@ function App() {
       <LanguageToggle>
         <LanguageButton 
           active={language === 'ru'} 
-          onClick={() => setLanguage('ru')}
+          onClick={() => {
+            setLanguage('ru');
+            savePreferences('horoscopeLanguage', 'ru');
+          }}
         >
           Рус
         </LanguageButton>
         <LanguageButton 
           active={language === 'en'} 
-          onClick={() => setLanguage('en')}
+          onClick={() => {
+            setLanguage('en');
+            savePreferences('horoscopeLanguage', 'en');
+          }}
         >
           Eng
         </LanguageButton>
@@ -405,6 +479,8 @@ function App() {
               const selectedTheme = e.target.value;
               setTheme(selectedTheme);
               setShowCustom(selectedTheme === 'custom');
+              // Save selection to localStorage
+              savePreferences('horoscopeTheme', selectedTheme);
             }}
           >
             {themeOptions.map(option => (
@@ -427,7 +503,10 @@ function App() {
                 ? "Введите свою тему (например, Путешествия, Образование, Творчество)" 
                 : "Enter your custom topic (e.g., Travel, Education, Creativity)"}
               value={customTopic}
-              onChange={(e) => setCustomTopic(e.target.value)}
+              onChange={(e) => {
+                setCustomTopic(e.target.value);
+                savePreferences('horoscopeCustomTopic', e.target.value);
+              }}
             />
           )}
         </FormRow>
