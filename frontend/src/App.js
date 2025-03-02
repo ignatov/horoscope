@@ -122,7 +122,7 @@ const IconButton = styled.button`
   }
   
   &:hover::after {
-    content: ${props => props.disabled ? '""' : '"' + props.title + '"'};
+    content: ${props => props.disabled ? 'none' : '"' + props.title + '"'};
     position: absolute;
     bottom: -30px;
     left: 50%;
@@ -135,6 +135,7 @@ const IconButton = styled.button`
     white-space: nowrap;
     z-index: 10;
     pointer-events: none;
+    display: ${props => props.disabled ? 'none' : 'block'};
   }
 `;
 
