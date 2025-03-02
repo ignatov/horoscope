@@ -157,12 +157,7 @@ const HoroscopeCard = styled.div`
   white-space: pre-line;
 `;
 
-const HoroscopeTitle = styled.h2`
-  color: #f8f9fa;
-  margin-bottom: 0.5rem;
-  font-size: 1.3rem;
-  text-align: center;
-`;
+// Удалено HoroscopeTitle, так как оно больше не используется
 
 const HoroscopeText = styled.p`
   line-height: 1.4;
@@ -640,11 +635,7 @@ function App() {
               
               // Format all horoscopes into a single text
               const horoscopesText = horoscopes
-                .map(h => `${h.sign ? (language === 'ru' 
-                  ? `ПРОГНОЗ ДЛЯ ${(zodiacSignsRuGenitive[h.sign] || h.sign).toUpperCase()}` 
-                  : `FORECAST FOR ${h.sign.toUpperCase()}`) : ''}
-${h.text}
-`)
+                .map(h => `${h.text}`)
                 .join('\n---\n\n');
               
               // Copy to clipboard
@@ -682,13 +673,6 @@ ${h.text}
             <div key={index}>
               {index > 0 && <HoroscopeSeparator />}
               <HoroscopeCard>
-                <HoroscopeTitle>
-                  {horoscope.sign 
-                    ? (language === 'ru' 
-                      ? `Прогноз для ${zodiacSignsRuGenitive[horoscope.sign] || horoscope.sign}` 
-                      : `Forecast for ${horoscope.sign}`) 
-                    : (language === 'ru' ? 'Сообщение' : 'Message')}
-                </HoroscopeTitle>
                 <HoroscopeText>{horoscope.text}</HoroscopeText>
               </HoroscopeCard>
             </div>
