@@ -28,9 +28,79 @@ app = Flask(__name__,
             static_folder=FRONTEND_DIR,
             static_url_path='')
 
+# Настройка логирования
+import logging
+from logging.handlers import RotatingFileHandler
+
+# Создаем директорию для логов, если она не существует
+LOG_DIR = os.path.join(ROOT_DIR, 'logs')
+os.makedirs(LOG_DIR, exist_ok=True)
+
+# Настраиваем логгер для API запросов
+api_logger = logging.getLogger('anthropic_api')
+api_logger.setLevel(logging.INFO)
+
+# Создаем ротирующий обработчик файлов (максимум 5 файлов по 5 МБ)
+api_handler = RotatingFileHandler(
+    os.path.join(LOG_DIR, 'anthropic_api.log'),
+    maxBytes=5*1024*1024,  # 5 МБ
+    backupCount=5
+)
+
+# Форматирование логов
+log_formatter = logging.Formatter(
+    '%(asctime)s [%(levelname)s] - %(message)s'
+)
+api_handler.setFormatter(log_formatter)
+api_logger.addHandler(api_handler)
+
+# Настраиваем основной логгер Flask
+handler = RotatingFileHandler(
+    os.path.join(LOG_DIR, 'flask_app.log'),
+    maxBytes=5*1024*1024,
+    backupCount=5
+)
+handler.setFormatter(log_formatter)
+app.logger.addHandler(handler)
+app.logger.setLevel(logging.INFO)
+
+# Загрузка API ключа: сначала пробуем из .env файла, затем из переменных окружения
+def load_api_key():
+    # Путь к .env файлу
+    env_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '.env')
+    api_key = None
+    
+    # Проверяем наличие .env файла
+    if os.path.exists(env_path):
+        try:
+            # Пытаемся прочитать ключ из .env файла
+            from dotenv import load_dotenv
+            load_dotenv(env_path)
+            api_key = os.environ.get('ANTHROPIC_API_KEY')
+            if api_key:
+                app.logger.info("API key loaded from .env file")
+        except Exception as e:
+            app.logger.error(f"Error loading .env file: {str(e)}")
+    
+    # Если ключ не был найден в .env, используем python-decouple для получения
+    # ключа из переменных окружения или .env в корне проекта
+    if not api_key:
+        api_key = config('ANTHROPIC_API_KEY', default='')
+        if api_key:
+            app.logger.info("API key loaded from environment variables")
+    
+    # Проверяем валидность ключа (базовая проверка)
+    if api_key and (len(api_key) < 10 or api_key == 'your_api_key_here'):
+        app.logger.warning("API key seems invalid, consider checking it")
+        
+    return api_key
+
 # Initialize Anthropic client
-ANTHROPIC_API_KEY = config('ANTHROPIC_API_KEY', default='')
+ANTHROPIC_API_KEY = load_api_key()
 client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
+
+# Логируем запуск приложения
+app.logger.info('Flask application started')
 
 # Sample horoscope content
 horoscope_themes = {
