@@ -79,7 +79,7 @@ const Button = styled.button`
   font-weight: 500;
   border-radius: 6px;
   cursor: pointer;
-  width: 100%;
+  width: ${props => props.withIcon ? 'calc(100% - 40px)' : '100%'};
   transition: transform 0.2s, box-shadow 0.2s;
   
   &:hover {
@@ -87,6 +87,57 @@ const Button = styled.button`
     box-shadow: 0 3px 10px rgba(255, 94, 98, 0.4);
   }
 `;
+
+const ButtonRow = styled.div`
+  display: flex;
+  gap: 0.5rem;
+  width: 100%;
+`;
+
+const IconButton = styled.button`
+  background: linear-gradient(135deg, #9966ff 0%, #5e62ff 100%);
+  color: white;
+  border: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: ${props => props.disabled ? 'not-allowed' : 'pointer'};
+  transition: transform 0.2s, box-shadow 0.2s;
+  opacity: ${props => props.disabled ? 0.5 : 1};
+  
+  &:hover {
+    transform: ${props => props.disabled ? 'none' : 'translateY(-1px)'};
+    box-shadow: ${props => props.disabled ? 'none' : '0 3px 10px rgba(94, 98, 255, 0.4)'};
+  }
+  
+  &:hover::after {
+    content: ${props => props.disabled ? '""' : '"' + props.title + '"'};
+    position: absolute;
+    bottom: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    white-space: nowrap;
+    z-index: 10;
+    pointer-events: none;
+  }
+`;
+
+// Copy icon SVG
+const CopyIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M20 9H11C9.89543 9 9 9.89543 9 11V20C9 21.1046 9.89543 22 11 22H20C21.1046 22 22 21.1046 22 20V11C22 9.89543 21.1046 9 20 9Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M5 15H4C3.46957 15 2.96086 14.7893 2.58579 14.4142C2.21071 14.0391 2 13.5304 2 13V4C2 3.46957 2.21071 2.96086 2.58579 2.58579C2.96086 2.21071 3.46957 2 4 2H13C13.5304 2 14.0391 2.21071 14.4142 2.58579C14.7893 2.96086 15 3.46957 15 4V5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+  </svg>
+);
 
 const HoroscopeCard = styled.div`
   background: rgba(255, 255, 255, 0.1);
@@ -124,39 +175,27 @@ const Loading = styled.div`
   color: #e9ecef;
 `;
 
-const CopyButton = styled.button`
-  background: linear-gradient(135deg, #9966ff 0%, #5e62ff 100%);
+// Tooltip styling for the copy icon
+const Tooltip = styled.span`
+  position: absolute;
+  bottom: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.7);
   color: white;
-  border: none;
-  padding: 0.4rem 0.8rem;
-  font-size: 0.8rem;
-  font-weight: 500;
-  border-radius: 6px;
-  cursor: pointer;
-  margin: 0 auto 1rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: transform 0.2s, box-shadow 0.2s;
-  width: 100%;
-  max-width: 300px;
-  
-  &:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 3px 10px rgba(94, 98, 255, 0.4);
-  }
-  
-  &:disabled {
-    background: #ccc;
-    cursor: not-allowed;
-    transform: none;
-    box-shadow: none;
-  }
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s;
+  z-index: 10;
 `;
 
 const CopySuccess = styled.div`
   text-align: center;
-  margin: -0.5rem auto 1rem;
+  margin: 0.5rem auto;
   color: #66ff99;
   font-size: 0.75rem;
   opacity: ${props => props.visible ? 1 : 0};
@@ -572,20 +611,16 @@ function App() {
           </CheckboxContainer>
         </FormRow>
         
-        <Button type="submit">
-          {language === 'ru' ? 'Создать Гороскопы' : 'Generate Horoscopes'}
-        </Button>
-      </Form>
-      
-      {loading ? (
-        <Loading>
-          ✨ {language === 'ru' ? 'Консультируемся со звездами...' : 'Consulting the stars...'} ✨
-        </Loading>
-      ) : horoscopes.length > 0 && (
-        <div>
-          {/* Copy to clipboard button - now at the top */}
-          <CopyButton 
-            onClick={() => {
+        <ButtonRow>
+          <Button type="submit" withIcon>
+            {language === 'ru' ? 'Создать Гороскопы' : 'Generate Horoscopes'}
+          </Button>
+          <IconButton 
+            type="button"
+            disabled={horoscopes.length === 0}
+            onClick={(e) => {
+              e.preventDefault(); // Prevent form submission
+              
               // Format all horoscopes into a single text
               const horoscopesText = horoscopes
                 .map(h => `${h.sign ? (language === 'ru' ? `ПРОГНОЗ ДЛЯ ${h.sign.toUpperCase()}` : `FORECAST FOR ${h.sign.toUpperCase()}`) : ''}
@@ -607,14 +642,23 @@ ${h.text}
                     : 'Failed to copy text. Please try again.');
                 });
             }}
+            title={language === 'ru' ? 'Скопировать все гороскопы' : 'Copy all horoscopes'}
           >
-            {language === 'ru' ? 'Скопировать все гороскопы' : 'Copy all horoscopes'}
-          </CopyButton>
-          
-          <CopySuccess visible={copySuccess}>
-            {language === 'ru' ? '✓ Скопировано в буфер обмена' : '✓ Copied to clipboard'}
-          </CopySuccess>
-          
+            <CopyIcon />
+          </IconButton>
+        </ButtonRow>
+      </Form>
+      
+      <CopySuccess visible={copySuccess}>
+        {language === 'ru' ? '✓ Скопировано в буфер обмена' : '✓ Copied to clipboard'}
+      </CopySuccess>
+      
+      {loading ? (
+        <Loading>
+          ✨ {language === 'ru' ? 'Консультируемся со звездами...' : 'Consulting the stars...'} ✨
+        </Loading>
+      ) : horoscopes.length > 0 && (
+        <div>
           {/* Horoscope cards */}
           {horoscopes.map((horoscope, index) => (
             <div key={index}>
