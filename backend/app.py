@@ -215,10 +215,10 @@ def generate_horoscope(theme="general", sign="", custom_topic="", language="en")
                     "Весы": "Весов", "Скорпион": "Скорпиона", "Стрелец": "Стрельца", 
                     "Козерог": "Козерога", "Водолей": "Водолея", "Рыбы": "Рыб"
                 }
-                # Use nominative case for the title "Гороскоп: Овен"
-                full_horoscope = f"Гороскоп: {sign_name}\n\n"
+                # Just use the sign name as the title
+                full_horoscope = f"{sign_name}\n\n"
             else:
-                full_horoscope = f"Общий гороскоп\n\n"
+                full_horoscope = f"Общий\n\n"
                 
             full_horoscope += horoscope_text
             full_horoscope += f"\n\nСчастливое число: {lucky_number}"
@@ -226,7 +226,7 @@ def generate_horoscope(theme="general", sign="", custom_topic="", language="en")
             full_horoscope += f"\nСовместимые знаки: {', '.join(translated_compatible_signs)}"
         else:
             # English output
-            full_horoscope = f"Horoscope: {sign if sign else 'General'}\n\n"
+            full_horoscope = f"{sign if sign else 'General'}\n\n"
             full_horoscope += horoscope_text
             full_horoscope += f"\n\nLucky Number: {lucky_number}"
             full_horoscope += f"\nLucky Colors: {lucky_colors}"
@@ -377,14 +377,14 @@ def generate_fallback_horoscope(theme="general", sign="", language="en"):
                 "Весы": "Весов", "Скорпион": "Скорпиона", "Стрелец": "Стрельца", 
                 "Козерог": "Козерога", "Водолей": "Водолея", "Рыбы": "Рыб"
             }
-            # Use nominative case for the title
-            horoscope = f"Гороскоп: {sign_name}\n\n{ru_prediction}{sign_message}"
+            # Just the sign name as title
+            horoscope = f"{sign_name}\n\n{ru_prediction}{sign_message}"
         else:
-            horoscope = f"Общий гороскоп\n\n{ru_prediction}{sign_message}"
+            horoscope = f"Общий\n\n{ru_prediction}{sign_message}"
     else:
         # English format
         sign_message = f"\n\nLucky Number: {lucky_number}\nLucky Colors: {lucky_colors}\nCompatible Signs: {', '.join(compatible_signs)}"
-        horoscope = f"Horoscope: {sign if sign else 'General'}\n\n{prediction}{sign_message}"
+        horoscope = f"{sign if sign else 'General'}\n\n{prediction}{sign_message}"
     
     return horoscope
 
