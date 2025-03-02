@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import axios from 'axios';
 
 // Styled components
 const AppContainer = styled.div`
@@ -28,8 +27,6 @@ const Subtitle = styled.p`
   color: #ced4da;
   margin-bottom: 0.2rem;
 `;
-
-/* Removed PoweredBy component */
 
 const Form = styled.form`
   background: rgba(255, 255, 255, 0.1);
@@ -113,7 +110,12 @@ const HoroscopeText = styled.p`
   font-size: 0.95rem;
 `;
 
-/* Removed HoroscopeFooter component */
+const HoroscopeSeparator = styled.hr`
+  border: 0;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.2);
+  margin: 1.5rem 0;
+`;
 
 const Loading = styled.div`
   text-align: center;
@@ -150,12 +152,45 @@ const LanguageButton = styled.button`
   }
 `;
 
+const CheckboxContainer = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+`;
+
+const CheckboxLabel = styled.label`
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 0.4rem 0.8rem;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: background 0.2s;
+  user-select: none;
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.2);
+  }
+  
+  &.selected {
+    background: rgba(255, 94, 98, 0.4);
+  }
+`;
+
+const HiddenCheckbox = styled.input.attrs({ type: 'checkbox' })`
+  position: absolute;
+  opacity: 0;
+  height: 0;
+  width: 0;
+`;
+
 // App Component
 function App() {
   const [theme, setTheme] = useState('general');
-  const [sign, setSign] = useState('');
+  const [selectedSigns, setSelectedSigns] = useState([]);
   const [customTopic, setCustomTopic] = useState('');
-  const [horoscope, setHoroscope] = useState('');
+  const [horoscopes, setHoroscopes] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showCustom, setShowCustom] = useState(false);
   const [language, setLanguage] = useState('ru'); // Default to Russian
@@ -194,40 +229,82 @@ function App() {
     { value: 'custom', label: 'Custom Topic...' }
   ];
 
+  const toggleSign = (sign) => {
+    setSelectedSigns(prev => {
+      if (prev.includes(sign)) {
+        return prev.filter(s => s !== sign);
+      } else {
+        return [...prev, sign];
+      }
+    });
+  };
+
   const fetchHoroscope = async (e) => {
     e.preventDefault();
     setLoading(true);
     
     // Validate custom topic if that option is selected
     if (theme === 'custom' && !customTopic.trim()) {
-      setHoroscope('Please enter a custom topic before generating your horoscope.');
+      setHoroscopes([{
+        sign: '',
+        text: language === 'ru' 
+          ? 'Пожалуйста, введите тему перед созданием гороскопа.' 
+          : 'Please enter a custom topic before generating your horoscope.'
+      }]);
+      setLoading(false);
+      return;
+    }
+    
+    // Validate that at least one sign is selected
+    if (selectedSigns.length === 0) {
+      setHoroscopes([{
+        sign: '',
+        text: language === 'ru' 
+          ? 'Пожалуйста, выберите хотя бы один знак зодиака.' 
+          : 'Please select at least one zodiac sign.'
+      }]);
       setLoading(false);
       return;
     }
     
     try {
-      // Convert Russian zodiac sign to English if needed
-      const apiSign = language === 'ru' && sign ? zodiacSignMap[sign] || sign : sign;
+      const results = [];
       
-      // Use plain fetch with full URL including custom topic and language
-      const url = `http://localhost:5001/api/horoscope?theme=${theme}&sign=${apiSign}&language=${language}${theme === 'custom' ? `&customTopic=${encodeURIComponent(customTopic)}` : ''}`;
-      const response = await fetch(url, {
-        method: 'GET',
-        headers: {
-          'Accept': 'application/json',
-        },
-        mode: 'cors'
-      });
-      
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
+      // Fetch horoscope for each selected sign
+      for (const sign of selectedSigns) {
+        // Convert Russian zodiac sign to English if needed
+        const apiSign = language === 'ru' ? zodiacSignMap[sign] || sign : sign;
+        
+        // Use fetch with full URL including custom topic and language
+        const url = `http://localhost:5001/api/horoscope?theme=${theme}&sign=${apiSign}&language=${language}${theme === 'custom' ? `&customTopic=${encodeURIComponent(customTopic)}` : ''}`;
+        const response = await fetch(url, {
+          method: 'GET',
+          headers: {
+            'Accept': 'application/json',
+          },
+          mode: 'cors'
+        });
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        results.push({
+          sign: sign,
+          text: data.horoscope
+        });
       }
       
-      const data = await response.json();
-      setHoroscope(data.horoscope);
+      setHoroscopes(results);
     } catch (error) {
-      console.error('Error fetching horoscope:', error);
-      setHoroscope('Unable to generate horoscope at this time. Please try again later.');
+      console.error('Error fetching horoscopes:', error);
+      setHoroscopes([{
+        sign: '',
+        text: language === 'ru' 
+          ? 'Не удалось создать гороскоп. Пожалуйста, попробуйте позже.' 
+          : 'Unable to generate horoscope at this time. Please try again later.'
+      }]);
     } finally {
       setLoading(false);
     }
@@ -306,27 +383,27 @@ function App() {
         </FormRow>
         
         <FormRow>
-          <Label htmlFor="sign">
-            {language === 'ru' ? 'Выберите знак зодиака (необязательно):' : 'Select Your Zodiac Sign (Optional):'}
+          <Label>
+            {language === 'ru' ? 'Выберите знаки зодиака:' : 'Select Zodiac Signs:'}
           </Label>
-          <Select 
-            id="sign" 
-            value={sign} 
-            onChange={(e) => setSign(e.target.value)}
-          >
-            <option value="">
-              {language === 'ru' ? '-- Выберите знак --' : '-- Select Sign --'}
-            </option>
+          <CheckboxContainer>
             {(language === 'ru' ? zodiacSignsRu : zodiacSignsEn).map(zodiacSign => (
-              <option key={zodiacSign} value={zodiacSign}>
+              <CheckboxLabel 
+                key={zodiacSign}
+                className={selectedSigns.includes(zodiacSign) ? 'selected' : ''}
+              >
+                <HiddenCheckbox 
+                  checked={selectedSigns.includes(zodiacSign)}
+                  onChange={() => toggleSign(zodiacSign)}
+                />
                 {zodiacSign}
-              </option>
+              </CheckboxLabel>
             ))}
-          </Select>
+          </CheckboxContainer>
         </FormRow>
         
         <Button type="submit">
-          {language === 'ru' ? 'Создать Гороскоп' : 'Generate Horoscope'}
+          {language === 'ru' ? 'Создать Гороскопы' : 'Generate Horoscopes'}
         </Button>
       </Form>
       
@@ -334,13 +411,22 @@ function App() {
         <Loading>
           ✨ {language === 'ru' ? 'Консультируемся со звездами...' : 'Consulting the stars...'} ✨
         </Loading>
-      ) : horoscope && (
-        <HoroscopeCard>
-          <HoroscopeTitle>
-            {language === 'ru' ? 'Ваше Космическое Послание' : 'Your Cosmic Message'}
-          </HoroscopeTitle>
-          <HoroscopeText>{horoscope}</HoroscopeText>
-        </HoroscopeCard>
+      ) : horoscopes.length > 0 && (
+        <div>
+          {horoscopes.map((horoscope, index) => (
+            <div key={index}>
+              {index > 0 && <HoroscopeSeparator />}
+              <HoroscopeCard>
+                <HoroscopeTitle>
+                  {horoscope.sign 
+                    ? (language === 'ru' ? `Прогноз для ${horoscope.sign}` : `Forecast for ${horoscope.sign}`) 
+                    : (language === 'ru' ? 'Сообщение' : 'Message')}
+                </HoroscopeTitle>
+                <HoroscopeText>{horoscope.text}</HoroscopeText>
+              </HoroscopeCard>
+            </div>
+          ))}
+        </div>
       )}
     </AppContainer>
   );
