@@ -319,22 +319,26 @@ header {
   font-size: 0.9rem;
   color: #e9ecef;
   position: relative;
-  height: 120px;
+  height: 180px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .loading-text {
   position: relative;
-  z-index: 5;
   background: rgba(0, 0, 0, 0.4);
   padding: 0.4rem 1rem;
   border-radius: 20px;
   display: inline-block;
   animation: pulse 2s infinite ease-in-out;
+  margin-top: 120px;
 }
 
 .celestial-loading {
   position: absolute;
-  top: 50%;
+  top: 30%;
   left: 50%;
   transform: translate(-50%, -50%);
   width: 100px;
