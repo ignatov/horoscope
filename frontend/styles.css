@@ -50,6 +50,27 @@
   }
 }
 
+/* Анимации для загрузки */
+@keyframes orbit {
+  0% { transform: rotate(0deg) translateX(40px) rotate(0deg); }
+  100% { transform: rotate(360deg) translateX(40px) rotate(-360deg); }
+}
+
+@keyframes orbit-reverse {
+  0% { transform: rotate(0deg) translateX(25px) rotate(0deg); }
+  100% { transform: rotate(-360deg) translateX(25px) rotate(360deg); }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.1); opacity: 0.8; }
+}
+
+@keyframes glow {
+  0%, 100% { box-shadow: 0 0 5px rgba(255, 223, 100, 0.6), 0 0 10px rgba(255, 215, 0, 0.4); }
+  50% { box-shadow: 0 0 15px rgba(255, 223, 100, 0.8), 0 0 20px rgba(255, 215, 0, 0.6); }
+}
+
 /* Базовые стили */
 * {
   box-sizing: border-box;
@@ -294,10 +315,82 @@ header {
 
 .loading {
   text-align: center;
-  padding: 1rem;
+  padding: 1.5rem;
   font-size: 0.9rem;
   color: #e9ecef;
+  position: relative;
+  height: 120px;
 }
+
+.loading-text {
+  position: relative;
+  z-index: 5;
+  background: rgba(0, 0, 0, 0.4);
+  padding: 0.4rem 1rem;
+  border-radius: 20px;
+  display: inline-block;
+  animation: pulse 2s infinite ease-in-out;
+}
+
+.celestial-loading {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100px;
+  height: 100px;
+}
+
+.sun {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  background: radial-gradient(circle, #ffeb7f 30%, #ff9d00);
+  border-radius: 50%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1;
+  animation: glow 3s infinite ease-in-out;
+}
+
+.planet {
+  position: absolute;
+  border-radius: 50%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.planet-1 {
+  width: 10px;
+  height: 10px;
+  background: #7fbfe9;
+  animation: orbit 6s infinite linear;
+}
+
+.planet-2 {
+  width: 8px;
+  height: 8px;
+  background: #ffacac;
+  animation: orbit-reverse 4s infinite linear;
+}
+
+.star {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: white;
+  border-radius: 50%;
+  box-shadow: 0 0 4px 1px rgba(255, 255, 255, 0.7);
+}
+
+.star-1 { top: 10%; left: 20%; animation: twinkle 3s infinite ease-in-out; }
+.star-2 { top: 80%; left: 15%; animation: twinkle 2.5s infinite ease-in-out; animation-delay: 0.5s; }
+.star-3 { top: 30%; left: 85%; animation: twinkle 4s infinite ease-in-out; animation-delay: 1s; }
+.star-4 { top: 70%; left: 80%; animation: twinkle 3.5s infinite ease-in-out; animation-delay: 1.5s; }
+.star-5 { top: 40%; left: 40%; animation: twinkle 5s infinite ease-in-out; animation-delay: 0.7s; }
+.star-6 { top: 60%; left: 60%; animation: twinkle 4.5s infinite ease-in-out; animation-delay: 1.2s; }
 
 .horoscope-card {
   background: rgba(255, 255, 255, 0.1);
